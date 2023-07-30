@@ -35,24 +35,27 @@ local plugins = {
 
   -- Install a plugin
   {
-    "max397574/better-escape.nvim",
-    event = "InsertEnter",
-    config = function()
-      require("better_escape").setup()
-    end,
-  },
-  {
     "github/copilot.vim" , lazy = false 
   },
   {
     "skywind3000/vim-keysound", lazy = false
   },
   {
-    "marioortizmanero/adoc-pdf-live.nvim", lazy = false,
-    config = "require('adoc_pdf_live').setup()",
+    "lervag/vimtex",
+    lazy = false
   },
   {
-    "lervag/vimtex",
+    "leafgarland/typescript-vim",
+    lazy = false
+  },
+  -- {
+  --   "neoclide/coc.nvim",
+  --   lazy = false,
+  --   branch ="release",
+  --   build = "yarn install --frozen-lockfile"
+  -- },
+  {
+    "ianks/vim-tsx",
     lazy = false
   },
   {
@@ -64,7 +67,6 @@ local plugins = {
        require "custom.configs.null-ls"
      end,
    },
- 
    config = function()
       require "plugins.configs.lspconfig"
       require "custom.configs.lspconfig"
