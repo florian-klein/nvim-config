@@ -6,7 +6,7 @@ M.ignore = {}
 M.general = {
   n = {
     [";"] = { ":", "enter command mode", opts = { nowait = true } },
-    ["<C-s>"] = { ":lua vim.lsp.buf.formatting_sync()<CR>:w<CR>", "format and save file" },
+    ["<C-s>"] = { ":lua vim.lsp.buf.format()<CR>:w<CR>", "format and save file" },
   },
   v = {
     ["<TAB>"] = { ">gv", "shift selected text right" },
