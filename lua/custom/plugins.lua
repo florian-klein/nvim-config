@@ -48,12 +48,12 @@ local plugins = {
     "leafgarland/typescript-vim",
     lazy = false
   },
-  -- {
-  --   "neoclide/coc.nvim",
-  --   lazy = false,
-  --   branch ="release",
-  --   build = "yarn install --frozen-lockfile"
-  -- },
+  {
+    "neoclide/coc.nvim",
+    lazy = false,
+    branch ="release",
+    build = "yarn install --frozen-lockfile"
+  },
   {
     "ianks/vim-tsx",
     lazy = false
