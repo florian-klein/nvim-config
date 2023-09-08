@@ -1,5 +1,5 @@
 local overrides = require("custom.configs.overrides")
-
+--- this is a new comment
 ---@type NvPluginSpec[]
 local plugins = {
 
@@ -56,6 +56,14 @@ local plugins = {
   },
   {
     "ianks/vim-tsx",
+    lazy = false
+  },
+  {
+    "nvim-lua/plenary.nvim",
+    lazy = false
+  },
+  {
+    'nvim-tree/nvim-web-devicons',
     lazy = false
   },
   {
