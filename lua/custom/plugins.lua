@@ -59,6 +59,14 @@ local plugins = {
     lazy = false
   },
   {
+    "nvim-lua/plenary.nvim",
+    lazy = false
+  },
+  {
+    'nvim-tree/nvim-web-devicons',
+    lazy = false
+  },
+  {
   "neovim/nvim-lspconfig",
 
    dependencies = {
