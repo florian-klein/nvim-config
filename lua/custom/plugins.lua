@@ -85,10 +85,15 @@ local plugins = {
     'mbledkowski/neuleetcode.vim', lazy = false,
 
   },
-  -- To make a plugin not be loaded
-  -- {
-  --   "NvChad/nvim-colorizer.lua",
-  --   enabled = false
+  {
+      'smoka7/hop.nvim',
+      version = "*",
+      opts = {},
+    },
+    -- To make a plugin not be loaded
+    -- {
+    --   "NvChad/nvim-colorizer.lua",
+    --   enabled = false
   -- },
 
   -- Uncomment if you want to re-enable which-key
