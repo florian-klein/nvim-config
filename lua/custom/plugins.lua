@@ -1,6 +1,5 @@
 local overrides = require("custom.configs.overrides")
---- this is a new comment
--- this is even a comment more
+
 ---@type NvPluginSpec[]
 local plugins = {
 
@@ -64,8 +63,7 @@ local plugins = {
     lazy = false
   },
   {
-    'nvim-tree/nvim-web-devicons',
-    lazy = false
+    'nvim-tree/nvim-web-devicons'
   },
   {
   "neovim/nvim-lspconfig",
@@ -85,15 +83,10 @@ local plugins = {
     'mbledkowski/neuleetcode.vim', lazy = false,
 
   },
-  {
-      'smoka7/hop.nvim',
-      version = "*",
-      opts = {},
-    },
-    -- To make a plugin not be loaded
-    -- {
-    --   "NvChad/nvim-colorizer.lua",
-    --   enabled = false
+  -- To make a plugin not be loaded
+  -- {
+  --   "NvChad/nvim-colorizer.lua",
+  --   enabled = false
   -- },
 
   -- Uncomment if you want to re-enable which-key
