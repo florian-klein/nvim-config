@@ -11,6 +11,7 @@ M.general = {
   },
   v = {
     ["<TAB>"] = { ">gv", "shift selected text right" },
+    ["<S-TAB>"] = { "<gv", "shift selected text left" },
   }
 }
 

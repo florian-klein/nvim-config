@@ -83,6 +83,24 @@ local plugins = {
     'mbledkowski/neuleetcode.vim', lazy = false,
 
   },
+-- tpope/vim-repeat
+-- tpope/vim-surround
+-- ggandor/leap.nvim
+  {
+    "tpope/vim-repeat",
+    lazy = false
+  },
+  {
+    "tpope/vim-surround",
+    lazy = false
+  },
+  {
+    "ggandor/leap.nvim",
+    lazy = false 
+  }
+
+
+
   -- To make a plugin not be loaded
   -- {
   --   "NvChad/nvim-colorizer.lua",
