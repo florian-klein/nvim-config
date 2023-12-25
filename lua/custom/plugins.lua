@@ -83,12 +83,13 @@ local plugins = {
     'mbledkowski/neuleetcode.vim', lazy = false,
 
   },
--- tpope/vim-repeat
--- tpope/vim-surround
--- ggandor/leap.nvim
+  {
+    "alaviss/nim.nvim",
+    lazy = false
+  },
   {
     "tpope/vim-repeat",
-    lazy = false
+    lazy = true
   },
   {
     "tpope/vim-surround",

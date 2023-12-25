@@ -16,6 +16,7 @@
   "leap.nvim": { "branch": "main", "commit": "e27bc4fd2e8c8282f91359ec0bbc3c686573d245" },
   "mason.nvim": { "branch": "main", "commit": "74eac861b013786bf231b204b4ba9a7d380f4bd9" },
   "neuleetcode.vim": { "branch": "master", "commit": "2ecaf6b3781a1bc540b682a1ef0c695c5d6379ae" },
+  "nim.nvim": { "branch": "master", "commit": "076239e8869e3e9b061b17cbca2cea2df73d5f92" },
   "null-ls.nvim": { "branch": "main", "commit": "0010ea927ab7c09ef0ce9bf28c2b573fc302f5a7" },
   "nvim-autopairs": { "branch": "master", "commit": "ae5b41ce880a6d850055e262d6dfebd362bb276e" },
   "nvim-cmp": { "branch": "main", "commit": "51f1e11a89ec701221877532ee1a23557d291dd5" },
