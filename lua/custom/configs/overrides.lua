@@ -11,7 +11,8 @@ M.treesitter = {
     "markdown",
     "markdown_inline",
     "python",
-    "nim",
+    "rust",
+    "bash",
   },
   indent = {
     enable = true,
@@ -35,6 +36,10 @@ M.mason = {
 
     -- python
     "pyright",
+    -- rust 
+    "rust_analyzer",
+    -- latex 
+    "texlab",
   },
 }
 

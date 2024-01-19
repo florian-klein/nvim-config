@@ -11,6 +11,8 @@ local sources = {
   b.formatting.prettier, -- Prettier for HTML, Markdown, CSS, and JavaScript
   -- Data Science, Python
   b.formatting.black, -- Black for Python
+  -- Rust 
+  b.formatting.rustfmt, -- Rustfmt for Rust
 
   -- Linting
   b.diagnostics.eslint, -- Eslint for JavaScript
