@@ -13,12 +13,16 @@ local sources = {
   b.formatting.black, -- Black for Python
   -- Rust 
   b.formatting.rustfmt, -- Rustfmt for Rust
+  -- C/C++ 
+  b.formatting.clang_format, -- Clang-format for C/C++
+  -- Ocaml 
+  b.formatting.ocamlformat, -- Ocamlformat for Ocaml
 
   -- Linting
   b.diagnostics.eslint, -- Eslint for JavaScript
   b.diagnostics.flake8, -- Flake8 for Python
   b.diagnostics.shellcheck, -- Shellcheck for Shell
-  b.diagnostics.markdownlint, -- Markdownlint for Markdown
+  b.diagnostics.clangd, -- Clangd for C/C++
 
 }
 

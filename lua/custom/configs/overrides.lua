@@ -1,6 +1,8 @@
 local M = {}
 
 M.treesitter = {
+  vim.api.nvim_set_hl(0, "@punctuation.delimiter.ocaml", { link = "Boolean" });
+  vim.api.nvim_set_hl(0, "@variable.parameter.ocaml", { link = "Boolean" });
   ensure_installed = {
     "vim",
     "lua",
@@ -13,6 +15,13 @@ M.treesitter = {
     "python",
     "rust",
     "bash",
+    "ocaml",
+  },
+  highlight = {
+    enable = true,
+    disable = {
+      -- "python"
+    },
   },
   indent = {
     enable = true,
@@ -40,6 +49,8 @@ M.mason = {
     "rust_analyzer",
     -- latex 
     "texlab",
+    -- ocaml 
+    "ocamllsp",
   },
 }
 

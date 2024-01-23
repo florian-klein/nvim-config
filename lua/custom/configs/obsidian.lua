@@ -68,7 +68,7 @@ local obsidian = {
         -- 1. Whether to add the note ID during completion.
         -- E.g. "[[Foo" completes to "[[foo|Foo]]" assuming "foo" is the ID of the note.
         -- Mutually exclusive with 'prepend_note_path' and 'use_path_only'.
-        prepend_note_id = true,
+        prepend_note_id = false,
         -- 2. Whether to add the note path during completion.
         -- E.g. "[[Foo" completes to "[[notes/foo|Foo]]" assuming "notes/foo.md" is the path of the note.
         -- Mutually exclusive with 'prepend_note_id' and 'use_path_only'.
@@ -76,7 +76,7 @@ local obsidian = {
         -- 3. Whether to only use paths during completion.
         -- E.g. "[[Foo" completes to "[[notes/foo]]" assuming "notes/foo.md" is the path of the note.
         -- Mutually exclusive with 'prepend_note_id' and 'prepend_note_path'.
-        use_path_only = false,
+        use_path_only = true,
       },
 
       -- Optional, configure key mappings. These are the defaults. If you don't want to set any keymappings this
@@ -113,7 +113,7 @@ local obsidian = {
             suffix = suffix .. string.char(math.random(65, 90))
           end
         end
-        return tostring(os.time()) .. "-" .. suffix
+        return suffix
       end,
 
       -- Optional, boolean or a function that takes a filename and returns a boolean.
