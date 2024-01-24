@@ -3,12 +3,17 @@ local jupyter_elements = {
     "GCBallesteros/NotebookNavigator.nvim",
     lazy = true,
     ft = "ipynb",
-    keys = {
-      { "<C-d>", function() require("notebook-navigator").move_cell "d" end },
-      { "<C-u>", function() require("notebook-navigator").move_cell "u" end },
-      { "<leader>X", "<cmd>lua require('notebook-navigator').run_cell()<cr>" },
-      { "<S-ENTER>", "<cmd>lua require('notebook-navigator').run_and_move()<cr>" },
-    },
+    keys = function()
+      if vim.bo.filetype == "ipynb" then
+        return {
+          { "<C-d>", function() require("notebook-navigator").move_cell "d" end },
+          { "<C-u>", function() require("notebook-navigator").move_cell "u" end },
+          { "<leader>X", "<cmd>lua require('notebook-navigator').run_cell()<cr>" },
+          { "<S-ENTER>", "<cmd>lua require('notebook-navigator').run_and_move()<cr>" },
+        }
+      end
+      return {}
+    end,
     dependencies = {
       "echasnovski/mini.comment",
       "hkupty/iron.nvim", -- repl provider
