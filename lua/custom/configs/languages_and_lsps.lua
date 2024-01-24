@@ -62,7 +62,8 @@ local languages_and_lsps = {
   ---- coq 
   {
     "whonore/Coqtail",
-    lazy = false,
+    lazy = true,
+    ft = "coq"
   }
 }
 

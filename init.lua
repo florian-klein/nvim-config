@@ -8,6 +8,11 @@ if custom_init_path then
   dofile(custom_init_path)
 end
 
+-- assert that required ft files were created at ~/.vim/ftdetect/ipynb.vim 
+-- preint in vim: :echo
+-- assert(vim.fn.filereadable(file_type_locations .. "ipynb.vim") == 1, "ftdetect/ipynb.vim not found. Please create a custom filetype for that file.")
+-- assert(vim.fn.filereadable(file_type_locations .. "v.vim") == 1, "ftdetect/v.vim not found. Please create a custom filetype for that file.")
+
 require("core.utils").load_mappings()
 -- require("leap").add_default_mappings()
 

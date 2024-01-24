@@ -1,6 +1,8 @@
 local jupyter_elements = {
   {
     "GCBallesteros/NotebookNavigator.nvim",
+    lazy = true,
+    ft = "ipynb",
     keys = {
       { "<C-j>", function() require("notebook-navigator").move_cell "d" end },
       { "<C-k>", function() require("notebook-navigator").move_cell "u" end },
@@ -14,7 +16,6 @@ local jupyter_elements = {
       -- "benlubas/molten-nvim", -- alternative repl provider
       "anuvyklack/hydra.nvim",
     },
-    event = "VeryLazy",
     config = function()
       local nn = require "notebook-navigator"
       nn.setup({ activate_hydra_keys = "<leader>h" })
@@ -45,7 +46,8 @@ local jupyter_elements = {
   },
   {
   "echasnovski/mini.hipatterns",
-    event = "VeryLazy",
+    lazy = true,
+    ft = "ipynb",
     dependencies = { "GCBallesteros/NotebookNavigator.nvim" },
     opts = function()
       local nn = require "notebook-navigator"
