@@ -22,7 +22,6 @@ local sources = {
   b.diagnostics.eslint, -- Eslint for JavaScript
   b.diagnostics.flake8, -- Flake8 for Python
   b.diagnostics.shellcheck, -- Shellcheck for Shell
-  b.diagnostics.clangd, -- Clangd for C/C++
 
 }
 
