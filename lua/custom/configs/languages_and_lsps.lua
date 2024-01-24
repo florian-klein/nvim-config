@@ -59,6 +59,11 @@ local languages_and_lsps = {
       require "custom.configs.lspconfig"
    end,
   },
+  ---- coq 
+  {
+    "whonore/Coqtail",
+    lazy = false,
+  }
 }
 
 return languages_and_lsps

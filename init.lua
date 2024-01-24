@@ -1,6 +1,8 @@
 require "core"
 
 local custom_init_path = vim.api.nvim_get_runtime_file("lua/custom/init.lua", false)[1]
+-- local g:loaded_python3_provider=0; How can you do this correctly 
+vim.g.python3_host_prog = "/Users/florianklein/miniconda3/bin/python3"
 
 if custom_init_path then
   dofile(custom_init_path)
