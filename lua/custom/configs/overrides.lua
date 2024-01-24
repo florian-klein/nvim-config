@@ -16,6 +16,7 @@ M.treesitter = {
     "rust",
     "bash",
     "ocaml",
+    "asm", -- Add 'asm' to the list of languages to ensure it's installed
   },
   highlight = {
     enable = true,
@@ -28,6 +29,15 @@ M.treesitter = {
     disable = {
       -- "python"
     },
+  },
+}
+
+-- Add the Assembly Treesitter parser configuration
+require('nvim-treesitter.parsers').get_parser_configs().asm = {
+  install_info = {
+    url = 'https://github.com/rush-rs/tree-sitter-asm.git',
+    files = { 'src/parser.c' },
+    branch = 'main',
   },
 }
 

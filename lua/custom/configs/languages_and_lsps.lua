@@ -64,7 +64,13 @@ local languages_and_lsps = {
     "whonore/Coqtail",
     lazy = true,
     ft = "coq"
-  }
+  },
+  ---- asm_lsp
+  {
+    'rush-rs/tree-sitter-asm',
+    lazy = true,
+    ft = "asm"
+  },
 }
 
 return languages_and_lsps

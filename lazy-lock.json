@@ -35,6 +35,7 @@
   "obsidian.nvim": { "branch": "main", "commit": "f604a30f74617850ca91a85fd35118ad6325bd5e" },
   "plenary.nvim": { "branch": "master", "commit": "663246936325062427597964d81d30eaa42ab1e4" },
   "telescope.nvim": { "branch": "master", "commit": "301505da4bb72d11ffeee47ad45e0b677f70abe5" },
+  "tree-sitter-asm": { "branch": "main", "commit": "499b726e106c1b143b8adbc7200d19346b7fd6a2" },
   "ui": { "branch": "v2.0", "commit": "1737a2a98e18b635480756e817564b60ff31fc53" },
   "vim-tsx": { "branch": "master", "commit": "77c89c42e189fefd3c9a632b37b7e3b3b9edf918" },
   "vimtex": { "branch": "master", "commit": "fe20ab1bd82a23441ac55054afefcd60001947a2" },
