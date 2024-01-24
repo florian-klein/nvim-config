@@ -4,8 +4,8 @@ local jupyter_elements = {
     lazy = true,
     ft = "ipynb",
     keys = {
-      { "<C-j>", function() require("notebook-navigator").move_cell "d" end },
-      { "<C-k>", function() require("notebook-navigator").move_cell "u" end },
+      { "<C-d>", function() require("notebook-navigator").move_cell "d" end },
+      { "<C-u>", function() require("notebook-navigator").move_cell "u" end },
       { "<leader>X", "<cmd>lua require('notebook-navigator').run_cell()<cr>" },
       { "<S-ENTER>", "<cmd>lua require('notebook-navigator').run_and_move()<cr>" },
     },
