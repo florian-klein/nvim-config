@@ -16,6 +16,7 @@ M.treesitter = {
     "rust",
     "bash",
     "ocaml",
+    "cpp",
     "asm", -- Add 'asm' to the list of languages to ensure it's installed
   },
   highlight = {
@@ -55,6 +56,8 @@ M.mason = {
 
     -- python
     "pyright",
+    "ruff",
+    "ruff_lsp",
     -- rust 
     "rust_analyzer",
     -- latex 

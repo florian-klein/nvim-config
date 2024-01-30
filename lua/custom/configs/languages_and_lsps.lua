@@ -33,6 +33,7 @@ local languages_and_lsps = {
   },
   {
     "lervag/vimtex",
+    ft = "tex",
     lazy = true
   },
   {

@@ -2,9 +2,9 @@ local jupyter_elements = {
   {
     "GCBallesteros/NotebookNavigator.nvim",
     lazy = true,
-    ft = "ipynb",
+    ft = { "ipynb", "python" },
     keys = function()
-      if vim.bo.filetype == "ipynb" then
+      if vim.bo.filetype == "ipynb" or vim.bo.filetype == "python" then
         return {
           { "<C-d>", function() require("notebook-navigator").move_cell "d" end },
           { "<C-u>", function() require("notebook-navigator").move_cell "u" end },
@@ -52,7 +52,7 @@ local jupyter_elements = {
   {
   "echasnovski/mini.hipatterns",
     lazy = true,
-    ft = "ipynb",
+    ft = { "ipynb", "python" },
     dependencies = { "GCBallesteros/NotebookNavigator.nvim" },
     opts = function()
       local nn = require "notebook-navigator"

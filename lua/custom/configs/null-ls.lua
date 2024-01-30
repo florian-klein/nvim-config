@@ -9,10 +9,10 @@ local b = null_ls.builtins
 local sources = {
   -- Webdev stuff
   b.formatting.prettier, -- Prettier for HTML, Markdown, CSS, and JavaScript
-  -- Data Science, Python
-  b.formatting.black, -- Black for Python
   -- Rust 
   b.formatting.rustfmt, -- Rustfmt for Rust
+  -- python 
+  b.formatting.ruff,
   -- C/C++ 
   b.formatting.clang_format, -- Clang-format for C/C++
   -- Ocaml 
@@ -20,7 +20,6 @@ local sources = {
 
   -- Linting
   b.diagnostics.eslint, -- Eslint for JavaScript
-  b.diagnostics.flake8, -- Flake8 for Python
   b.diagnostics.shellcheck, -- Shellcheck for Shell
 
 }
