@@ -12,15 +12,18 @@ local sources = {
   -- Rust 
   b.formatting.rustfmt, -- Rustfmt for Rust
   -- python 
-  b.formatting.ruff,
+  b.formatting.black,
   -- C/C++ 
   b.formatting.clang_format, -- Clang-format for C/C++
   -- Ocaml 
   b.formatting.ocamlformat, -- Ocamlformat for Ocaml
+  -- latex 
+  b.formatting.latexindent, -- Latexindent for Latex
 
   -- Linting
   b.diagnostics.eslint, -- Eslint for JavaScript
   b.diagnostics.shellcheck, -- Shellcheck for Shell
+  b.diagnostics.black,
 
 }
 

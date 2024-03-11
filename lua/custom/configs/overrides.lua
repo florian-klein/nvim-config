@@ -31,6 +31,17 @@ M.treesitter = {
       -- "python"
     },
   },
+  textobjects = {
+    lsp_interop = {
+      enable = true,
+      border = 'none',
+      floating_preview_opts = {},
+      peek_definition_code = {
+        ["<S-I>"] = "@function.outer",
+        ["<leader>dF"] = "@class.outer",
+      },
+    },
+  },
 }
 
 -- Add the Assembly Treesitter parser configuration
@@ -55,8 +66,8 @@ M.mason = {
     "deno",
 
     -- python
-    "pyright",
-    "ruff",
+    -- "pyright",
+    -- "ruff",
     "ruff_lsp",
     -- rust 
     "rust_analyzer",
@@ -77,7 +88,7 @@ M.nvimtree = {
     highlight_git = true,
     icons = {
       show = {
-        git = true,
+        git = false,
       },
     },
   },

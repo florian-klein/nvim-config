@@ -16,6 +16,17 @@ local languages_and_lsps = {
       require "custom.configs.lspconfig"
     end, -- Override to setup mason-lspconfig
   },
+  --- display lsp errors using trouble 
+  {
+   "folke/trouble.nvim",
+   lazy = false,
+   dependencies = { "nvim-tree/nvim-web-devicons" },
+   opts = {
+    -- your configuration comes here
+    -- or leave it empty to use the default settings
+    -- refer to the configuration section below
+   },
+  },
 
   -- overrde plugin configs
   {
@@ -71,6 +82,19 @@ local languages_and_lsps = {
     'rush-rs/tree-sitter-asm',
     lazy = true,
     ft = "asm"
+  },
+  --- git 
+  {
+      "kdheepak/lazygit.nvim",
+      -- optional for floating window border decoration
+      dependencies = {
+          "nvim-lua/plenary.nvim",
+      },
+  },
+  --- peeking on defintion under cursor 
+  {
+    "https://github.com/nvim-treesitter/nvim-treesitter-textobjects.git",
+    lazy = false,
   },
 }
 

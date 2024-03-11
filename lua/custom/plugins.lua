@@ -3,6 +3,7 @@ local overrides = require("custom.configs.overrides")
 --- custom configs extracted into other files 
 local jupyter = require("custom.configs.jupyter")
 local obsidian = require("custom.configs.obsidian")
+--- leap for faster movement 
 local languages_and_lsps = require("custom.configs.languages_and_lsps")
 
 ---@type NvPluginSpec[]
