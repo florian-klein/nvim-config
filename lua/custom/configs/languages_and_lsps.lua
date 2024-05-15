@@ -96,6 +96,51 @@ local languages_and_lsps = {
     "https://github.com/nvim-treesitter/nvim-treesitter-textobjects.git",
     lazy = false,
   },
+  --- ssh access distant 
+  {
+    'chipsenkbeil/distant.nvim',
+    branch = 'v0.3',  -- Specifies the branch of the plugin to use
+    lazy = false,     -- Indicates that the plugin should be loaded immediately, not lazily
+    config = function()
+      require('distant'):setup({
+        buffer = {
+                watch = {
+                    enabled = true
+                }
+            },
+        launch = {
+            host = 'login.rc.fas.harvard.edu',
+            -- You can add additional SSH or distant launch arguments as needed
+          }
+      })
+    end
+  },
+  {
+  'stevearc/aerial.nvim',
+  lazy = false,
+  opts = {},
+  -- Optional dependencies
+  dependencies = {
+     "nvim-treesitter/nvim-treesitter",
+     "nvim-tree/nvim-web-devicons"
+  },
+  config = function()
+    require('aerial'):setup({
+  })
+  end
+  },
+  {
+    'ggandor/leap.nvim',
+    lazy = false,
+    opts = {
+      highlight_unlabeled_phase_one_targets = true,
+    },
+    config = function()
+      require('leap').setup({
+
+      })
+    end
+  }
 }
 
 return languages_and_lsps

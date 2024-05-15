@@ -21,9 +21,8 @@ local sources = {
   b.formatting.latexindent, -- Latexindent for Latex
 
   -- Linting
-  b.diagnostics.eslint, -- Eslint for JavaScript
-  b.diagnostics.shellcheck, -- Shellcheck for Shell
-  b.diagnostics.black,
+  -- b.diagnostics.shellcheck, -- Shellcheck for Shell
+  -- b.diagnostics.black,
 
 }
 

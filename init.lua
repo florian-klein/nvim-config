@@ -14,7 +14,6 @@ end
 -- assert(vim.fn.filereadable(file_type_locations .. "v.vim") == 1, "ftdetect/v.vim not found. Please create a custom filetype for that file.")
 
 require("core.utils").load_mappings()
--- require("leap").add_default_mappings()
 
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 

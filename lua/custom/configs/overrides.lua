@@ -67,8 +67,8 @@ M.mason = {
 
     -- python
     -- "pyright",
-    -- "ruff",
-    "ruff_lsp",
+    "ruff",
+    "ruff-lsp",
     -- rust 
     "rust_analyzer",
     -- latex 
