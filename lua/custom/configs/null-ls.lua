@@ -22,7 +22,6 @@ local sources = {
 
   -- Linting
   -- b.diagnostics.shellcheck, -- Shellcheck for Shell
-  -- b.diagnostics.black,
 
 }
 

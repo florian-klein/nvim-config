@@ -66,7 +66,7 @@ M.mason = {
     "deno",
 
     -- python
-    -- "pyright",
+    "basedpyright",
     "ruff",
     "ruff-lsp",
     -- rust 
@@ -88,7 +88,7 @@ M.nvimtree = {
     highlight_git = true,
     icons = {
       show = {
-        git = false,
+        git = true,
       },
     },
   },
