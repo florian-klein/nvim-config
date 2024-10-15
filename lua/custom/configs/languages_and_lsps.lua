@@ -48,31 +48,12 @@ local languages_and_lsps = {
     lazy = true
   },
   --- java
-  -- {
-  --   'nvim-java/nvim-java',
-  --   config = false,
-  --   lazy = true,
-  --   ft = "java",
-  --   dependencies = {
-  --     {
-  --       'neovim/nvim-lspconfig',
-  --       opts = {
-  --         servers = {
-  --           jdtls = {
-  --             -- Your custom jdtls settings goes here
-  --           },
-  --         },
-  --         setup = {
-  --           jdtls = function()
-  --             require('java').setup({
-  --               -- Your custom nvim-java configuration goes here
-  --             })
-  --           end,
-  --         },
-  --       },
-  --     },
-  --   },
-  -- },
+  {
+    'florian-klein/nvim-java',
+    config = false,
+    lazy = true,
+    ft = "java",
+  },
   -- {
   --   "neoclide/coc.nvim",
   --   lazy = false,

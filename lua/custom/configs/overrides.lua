@@ -17,6 +17,7 @@ M.treesitter = {
     "bash",
     "ocaml",
     "cpp",
+    "java",
     "asm", -- Add 'asm' to the list of languages to ensure it's installed
   },
   highlight = {
