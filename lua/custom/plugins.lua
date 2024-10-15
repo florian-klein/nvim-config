@@ -12,7 +12,7 @@ local plugins = {
   jupyter,
   languages_and_lsps,
   {
-    "github/copilot.vim" , lazy = false 
+    "github/copilot.vim" , lazy = false
   },
   {
     'mbledkowski/neuleetcode.vim', lazy = true,
