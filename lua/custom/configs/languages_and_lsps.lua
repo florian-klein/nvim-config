@@ -49,10 +49,45 @@ local languages_and_lsps = {
   },
   --- java
   {
-    'florian-klein/nvim-java',
-    config = false,
-    lazy = true,
-    ft = "java",
+  'florian-klein/nvim-java',
+  config = false,
+  lazy = true,
+  ft = "java",
+  dependencies = {
+      {
+        'neovim/nvim-lspconfig',
+        opts = {
+          servers = {
+            jdtls = {
+              -- Your custom jdtls settings goes here
+              settings = {
+                java = {
+                  format = {
+                    enabled = true,
+                  },
+                  completion = {
+                    enabled = true,
+                  },
+                  contentProvider = { preferred = 'fernflower' }, -- Optional, depending on your setup
+                },
+              },
+            },
+          },
+          setup = {
+            jdtls = function()
+
+              require('java').setup({
+                -- Your custom nvim-java configuration goes here
+                format_on_save = true,
+                organize_imports_on_save = true,
+                auto_build = true, -- Automatically build the project on save
+                linting = true, -- Enable linting
+              })
+            end,
+          },
+        },
+      },
+    },
   },
   -- {
   --   "neoclide/coc.nvim",

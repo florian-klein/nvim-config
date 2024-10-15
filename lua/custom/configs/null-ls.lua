@@ -19,6 +19,8 @@ local sources = {
   b.formatting.ocamlformat, -- Ocamlformat for Ocaml
   -- latex 
   b.formatting.latexindent, -- Latexindent for Latex
+  -- java 
+  b.formatting.google_java_format, -- Google-java-format for Java
 
   -- Linting
   -- b.diagnostics.shellcheck, -- Shellcheck for Shell

@@ -6,8 +6,6 @@ local lspconfig = require("lspconfig")
 -- if you just want default config for the servers then put them in a table
 local servers = { "html", "cssls", "ts_ls", "clangd", "rust_analyzer", "texlab", "ocamllsp", "asm_lsp", "jedi_language_server", "ruff_lsp", "jdtls"}
 
-require('java').setup()
-
 for _, lsp in ipairs(servers) do
   lspconfig[lsp].setup {
     on_attach = on_attach,
