@@ -50,38 +50,32 @@ local languages_and_lsps = {
   --- java
   {
   'florian-klein/nvim-java',
-  config = false,
+  config = function()
+    require('java').setup()
+
+  end,
   lazy = true,
   ft = "java",
   dependencies = {
+      'nvim-java/lua-async-await',
+      'nvim-java/nvim-java-core',
+      'nvim-java/nvim-java-test',
+      'nvim-java/nvim-java-dap',
+      'MunifTanjim/nui.nvim',
+      'neovim/nvim-lspconfig',
+      'mfussenegger/nvim-dap',
       {
         'neovim/nvim-lspconfig',
         opts = {
           servers = {
             jdtls = {
               -- Your custom jdtls settings goes here
-              settings = {
-                java = {
-                  format = {
-                    enabled = true,
-                  },
-                  completion = {
-                    enabled = true,
-                  },
-                  contentProvider = { preferred = 'fernflower' }, -- Optional, depending on your setup
-                },
-              },
             },
           },
           setup = {
             jdtls = function()
 
               require('java').setup({
-                -- Your custom nvim-java configuration goes here
-                format_on_save = true,
-                organize_imports_on_save = true,
-                auto_build = true, -- Automatically build the project on save
-                linting = true, -- Enable linting
               })
             end,
           },
