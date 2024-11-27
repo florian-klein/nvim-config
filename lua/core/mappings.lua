@@ -32,6 +32,9 @@ M.general = {
     -- line numbers
     ["<leader>n"] = { "<cmd> set nu! <CR>", "Toggle line number" },
     ["<leader>rn"] = { "<cmd> set rnu! <CR>", "Toggle relative number" },
+    ["<leader>jr"] = { "<cmd> JavaRunnerRunMain <CR>", "Java Run Class" },
+    ["<leader>jt"] = { "<cmd> JavaTestRunCurrentClass <CR>", "Java Run Class" },
+    ["<leader>jv"] = { "<cmd> JavaTestViewLastReport <CR>", "Java Test Report" },
 
     -- Allow moving the cursor through wrapped lines with j, k, <Up> and <Down>
     -- http://www.reddit.com/r/vim/comments/2k4cbr/problem_with_gj_and_gk/

@@ -15,12 +15,12 @@ local sources = {
   b.formatting.black,
   -- C/C++ 
   b.formatting.clang_format, -- Clang-format for C/C++
-  -- Ocaml 
-  b.formatting.ocamlformat, -- Ocamlformat for Ocaml
   -- latex 
   b.formatting.latexindent, -- Latexindent for Latex
-  -- java 
-  b.formatting.google_java_format, -- Google-java-format for Java
+  --- typescript 
+  b.formatting.eslint, -- Eslint for TypeScript
+  --- google java formatting 
+  b.formatting.google_java_format, -- Google Java Format for Java
 
   -- Linting
   -- b.diagnostics.shellcheck, -- Shellcheck for Shell

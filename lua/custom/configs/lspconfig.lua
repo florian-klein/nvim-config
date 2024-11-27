@@ -1,15 +1,46 @@
 local on_attach = require("plugins.configs.lspconfig").on_attach
 local capabilities = require("plugins.configs.lspconfig").capabilities
 
+require('java').setup()
 local lspconfig = require("lspconfig")
 
 -- if you just want default config for the servers then put them in a table
-local servers = { "html", "cssls", "ts_ls", "clangd", "rust_analyzer", "texlab", "ocamllsp", "asm_lsp", "jedi_language_server", "ruff_lsp", "jdtls"}
+local servers = { "html", "cssls", "clangd", "rust_analyzer", "texlab", "ocamllsp", "asm_lsp", "jedi_language_server", "ruff_lsp", "jdtls"}
 
 for _, lsp in ipairs(servers) do
+  -- if lsp is rust-analyzer then do special setup 
+  local settings = {}
+  if lsp == "rust_analyzer" then
+    settings = {
+      ["rust-analyzer"] = {
+        cargo = {
+          loadOutDirsFromCheck = true,
+        },
+        -- Add clippy lints for Rust.
+        checkOnSave = {
+          allFeatures = true,
+          command = "clippy",
+          extraArgs = {
+            "--",
+            "--no-deps",
+            "-Dclippy::perf",
+          },
+        },
+        procMacro = {
+          enable = true,
+          ignored = {
+            ["async-trait"] = { "async_trait" },
+            ["napi-derive"] = { "napi" },
+            ["async-recursion"] = { "async_recursion" },
+          },
+        },
+      }
+      }
+  end
   lspconfig[lsp].setup {
     on_attach = on_attach,
     capabilities = capabilities,
+    settings = settings
   }
 end
 
@@ -17,10 +48,32 @@ end
 function UpdateRustAnalyzerFeatures(features, no_default_features)
   lspconfig.rust_analyzer.setup({
     settings = {
-      ["rust-analyzer"] = {
+    ["rust-analyzer"] = {
         cargo = {
+          loadOutDirsFromCheck = true,
           features = features,        -- Pass the features dynamically
           noDefaultFeatures = no_default_features, -- Disable default features if true
+        },
+        -- Add clippy lints for Rust.
+        checkOnSave = {
+          allFeatures = true,
+          command = "clippy",
+          extraArgs = {
+            "--",
+            "--no-deps",
+            "-Dclippy::correctness",
+            "-Dclippy::complexity",
+            "-Wclippy::perf",
+            "-Wclippy::pedantic",
+          },
+        },
+        procMacro = {
+          enable = true,
+          ignored = {
+            ["async-trait"] = { "async_trait" },
+            ["napi-derive"] = { "napi" },
+            ["async-recursion"] = { "async_recursion" },
+          },
         },
       },
     },

@@ -49,15 +49,10 @@ local languages_and_lsps = {
   },
   --- java
   {
-  'florian-klein/nvim-java',
-  config = function()
-    require('java').setup()
-
-  end,
-  lazy = true,
-  ft = "java",
-  dependencies = {
+    'nvim-java/nvim-java',
+    dependencies = {
       'nvim-java/lua-async-await',
+      'nvim-java/nvim-java-refactor',
       'nvim-java/nvim-java-core',
       'nvim-java/nvim-java-test',
       'nvim-java/nvim-java-dap',
@@ -65,19 +60,15 @@ local languages_and_lsps = {
       'neovim/nvim-lspconfig',
       'mfussenegger/nvim-dap',
       {
-        'neovim/nvim-lspconfig',
+        'JavaHello/spring-boot.nvim',
+        commit = '218c0c26c14d99feca778e4d13f5ec3e8b1b60f0',
+      },
+      {
+        'williamboman/mason.nvim',
         opts = {
-          servers = {
-            jdtls = {
-              -- Your custom jdtls settings goes here
-            },
-          },
-          setup = {
-            jdtls = function()
-
-              require('java').setup({
-              })
-            end,
+          registries = {
+            'github:nvim-java/mason-registry',
+            'github:mason-org/mason-registry',
           },
         },
       },
@@ -131,6 +122,14 @@ local languages_and_lsps = {
   {
     "https://github.com/nvim-treesitter/nvim-treesitter-textobjects.git",
     lazy = false,
+  },
+  --- Typescript Tools
+  {
+    "pmizio/typescript-tools.nvim",
+    dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
+    opts = {},
+    lazy = true, 
+    ft = "typescript"
   },
   {
   'stevearc/aerial.nvim',

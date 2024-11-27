@@ -1,6 +1,9 @@
 local options = {
   ensure_installed = { "lua-language-server" }, -- not an option from mason.nvim
-
+  registries = {
+    'github:nvim-java/mason-registry',
+    'github:mason-org/mason-registry',
+  },
   PATH = "skip",
 
   ui = {
