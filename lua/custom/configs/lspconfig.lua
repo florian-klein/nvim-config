@@ -1,99 +1,128 @@
 local on_attach = require("plugins.configs.lspconfig").on_attach
 local capabilities = require("plugins.configs.lspconfig").capabilities
 
-require('java').setup()
 local lspconfig = require("lspconfig")
 
--- if you just want default config for the servers then put them in a table
-local servers = { "html", "cssls", "clangd", "rust_analyzer", "texlab", "ocamllsp", "asm_lsp", "jedi_language_server", "ruff_lsp", "jdtls"}
+-- Set Rust toolchain to nightly
+vim.env.RUSTUP_TOOLCHAIN = "nightly"
 
+-- Increase Node.js max listeners for large projects
+local success, emitter = pcall(require, "vim.lsp.protocol._emitter")
+if success and emitter and emitter.setMaxListeners then
+  emitter:setMaxListeners(20) -- Increase max listeners
+end
+
+local servers = { "html", "cssls", "clangd", "rust_analyzer", "texlab", "ocamllsp", "asm_lsp", "jedi_language_server", "ruff", "jdtls" }
+
+-- Check if the required LSP servers are installed
+for _, server in ipairs(servers) do
+  if not lspconfig[server] then
+    vim.notify("LSP server '" .. server .. "' is not installed. Skipping configuration.", vim.log.levels.WARN)
+  end
+end
+
+-- Conditional setup for JDTLS (Java)
+if vim.tbl_contains(servers, "jdtls") then
+  local status_ok, java = pcall(require, "java")
+  if not status_ok then
+    vim.notify("Java LSP (jdtls) setup failed. Ensure the 'java' module is installed.", vim.log.levels.ERROR)
+  else
+    java.setup()
+  end
+end
+
+-- Loop through servers and set configurations
 for _, lsp in ipairs(servers) do
-  -- if lsp is rust-analyzer then do special setup 
   local settings = {}
   if lsp == "rust_analyzer" then
     settings = {
       ["rust-analyzer"] = {
+        lru = {
+          capacity = 8192, -- Increase cache capacity
+        },
         cargo = {
           loadOutDirsFromCheck = true,
-        },
-        -- Add clippy lints for Rust.
-        checkOnSave = {
           allFeatures = true,
-          command = "clippy",
-          extraArgs = {
-            "--",
-            "--no-deps",
-            "-Dclippy::perf",
-          },
         },
         procMacro = {
           enable = true,
-          ignored = {
-            ["async-trait"] = { "async_trait" },
-            ["napi-derive"] = { "napi" },
-            ["async-recursion"] = { "async_recursion" },
-          },
         },
-      }
-      }
-  end
-  lspconfig[lsp].setup {
-    on_attach = on_attach,
-    capabilities = capabilities,
-    settings = settings
-  }
-end
-
--- Function to dynamically update the features for rust-analyzer
-function UpdateRustAnalyzerFeatures(features, no_default_features)
-  lspconfig.rust_analyzer.setup({
-    settings = {
-    ["rust-analyzer"] = {
-        cargo = {
-          loadOutDirsFromCheck = true,
-          features = features,        -- Pass the features dynamically
-          noDefaultFeatures = no_default_features, -- Disable default features if true
-        },
-        -- Add clippy lints for Rust.
         checkOnSave = {
           allFeatures = true,
           command = "clippy",
           extraArgs = {
             "--",
             "--no-deps",
-            "-Dclippy::correctness",
-            "-Dclippy::complexity",
+            "-Wclippy::correctness",
             "-Wclippy::perf",
-            "-Wclippy::pedantic",
-          },
-        },
-        procMacro = {
-          enable = true,
-          ignored = {
-            ["async-trait"] = { "async_trait" },
-            ["napi-derive"] = { "napi" },
-            ["async-recursion"] = { "async_recursion" },
+            "-Wclippy::complexity",
+            "-Wclippy::suspicious",
           },
         },
       },
-    },
-  })
-  -- Restart the rust-analyzer to apply the new features
-  vim.lsp.stop_client(vim.lsp.get_active_clients())
-  lspconfig.rust_analyzer.launch()
+    }
+  end
+
+  local setup_config = {
+    on_attach = on_attach,
+    capabilities = capabilities,
+  }
+
+  -- Apply settings only if non-empty
+  if next(settings) ~= nil then
+    setup_config.settings = settings
+  end
+
+  -- Check if the LSP server exists before setting up
+  if lspconfig[lsp] then
+    lspconfig[lsp].setup(setup_config)
+  else
+    vim.notify("LSP server '" .. lsp .. "' is not available for setup.", vim.log.levels.ERROR)
+  end
 end
 
+-- Function to dynamically update Rust Analyzer features
+function UpdateRustAnalyzerFeatures(features, no_default_features)
+  local params = {
+    settings = {
+      ["rust-analyzer"] = {
+        cargo = {
+          loadOutDirsFromCheck = true,
+          features = features or {},
+          noDefaultFeatures = no_default_features or false,
+        },
+      },
+    },
+  }
+  local clients = vim.lsp.get_active_clients()
+  for _, client in ipairs(clients) do
+    if client.name == "rust_analyzer" then
+      local status_ok, err = pcall(client.notify, client, "workspace/didChangeConfiguration", params)
+      if not status_ok then
+        vim.notify("Failed to update Rust Analyzer configuration: " .. err, vim.log.levels.ERROR)
+      else
+        vim.notify("Rust Analyzer features updated successfully.", vim.log.levels.INFO)
+      end
+    end
+  end
+end
+
+-- Command to switch Rust Analyzer features dynamically
 vim.api.nvim_create_user_command('RustSwitchFeatures', function(args)
+  if args.args == "" then
+    vim.notify("No features provided. Please specify features separated by commas.", vim.log.levels.ERROR)
+    return
+  end
   local features = vim.split(args.args, ",")
   UpdateRustAnalyzerFeatures(features)
 end, {
   nargs = 1,
-  complete = nil,
   desc = "Switch rust-analyzer features dynamically",
 })
 
+-- Command to disable all non-default Rust Analyzer features
 vim.api.nvim_create_user_command('RustDisableNonDefaultFeatures', function()
-  UpdateRustAnalyzerFeatures({}, true) -- Disable all non-default features
+  UpdateRustAnalyzerFeatures({}, true)
 end, {
   nargs = 0,
   desc = "Disable all non-default features in rust-analyzer",
