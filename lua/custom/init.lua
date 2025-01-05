@@ -6,6 +6,8 @@
 --   command = "tabdo wincmd =",
 -- })
 vim.g.leetcode_solution_filetype = 'cpp'
+vim.g.maplocalleader = ","
+vim.g.copilot_disable_diagnostics = true
 vim.g.leetcode_browser = 'chrome'
 -- vim.opt.conceallevel = 1
 vim.api.nvim_set_keymap('i', '<C-/>', 'copilot#Accept("<CR>")', {expr=true, silent=true})

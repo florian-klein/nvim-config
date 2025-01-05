@@ -27,8 +27,33 @@ local languages_and_lsps = {
     -- refer to the configuration section below
    },
   },
-
+  -- refactor plugin
+  {
+    'MagicDuck/grug-far.nvim',
+    lazy = false,
+    config = function()
+      require('grug-far').setup({
+        -- options, see Configuration section below
+        -- there are no required options atm
+        -- engine = 'ripgrep' is default, but 'astgrep' can be specified
+      });
+    end
+  },
   -- overrde plugin configs
+  {
+    'rcarriga/nvim-notify',
+    lazy = false,
+  },
+  {
+    'mrded/nvim-lsp-notify',
+    lazy = false,
+    requires = { 'rcarriga/nvim-notify' },
+    config = function()
+      require('lsp-notify').setup({
+        notify = require('notify'),
+      })
+    end
+  },
   {
     "nvim-treesitter/nvim-treesitter",
     opts = overrides.treesitter,
@@ -50,6 +75,7 @@ local languages_and_lsps = {
   --- java
   {
     'nvim-java/nvim-java',
+    ft = "java",
     dependencies = {
       'nvim-java/lua-async-await',
       'nvim-java/nvim-java-refactor',

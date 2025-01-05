@@ -66,6 +66,7 @@ for _, lsp in ipairs(servers) do
   local setup_config = {
     on_attach = on_attach,
     capabilities = capabilities,
+    progress = true,
   }
 
   -- Apply settings only if non-empty
