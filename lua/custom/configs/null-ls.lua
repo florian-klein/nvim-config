@@ -15,6 +15,8 @@ local sources = {
   b.formatting.black,
   -- C/C++ 
   b.formatting.clang_format, -- Clang-format for C/C++
+  -- formatting for lua 
+  b.formatting.stylua, -- Stylua for Lua
   -- latex 
   b.formatting.latexindent, -- Latexindent for Latex
   --- typescript 

@@ -12,7 +12,7 @@ if success and emitter and emitter.setMaxListeners then
   emitter:setMaxListeners(20) -- Increase max listeners
 end
 
-local servers = { "html", "cssls", "clangd", "rust_analyzer", "texlab", "ocamllsp", "asm_lsp", "jedi_language_server", "ruff", "jdtls" }
+local servers = { "html", "cssls", "clangd", "rust_analyzer", "texlab", "ocamllsp", "asm_lsp", "jedi_language_server", "ruff", "jdtls", "lua_ls"}
 
 -- Check if the required LSP servers are installed
 for _, server in ipairs(servers) do
@@ -30,6 +30,31 @@ if vim.tbl_contains(servers, "jdtls") then
     java.setup()
   end
 end
+
+-- lspconfig.pylyzer.setup({
+--   cmd = { "pylyzer", "--server" },
+--   filetypes = { "python" },
+--   root_dir = function(fname)
+--     local root_files = {
+--       "setup.py",
+--       "tox.ini",
+--       "requirements.txt",
+--       "Pipfile",
+--       "pyproject.toml",
+--     }
+--     return lspconfig.util.root_pattern(unpack(root_files))(fname)
+--       or vim.fs.dirname(vim.fs.find(".git", { path = fname, upward = true })[1])
+--   end,
+--   single_file_support = true,
+--   settings = {
+--     python = {
+--       diagnostics = false,
+--       inlayHints = true,
+--       smartCompletion = true,
+--       checkOnType = true,
+--     },
+--   },
+-- })
 
 -- Loop through servers and set configurations
 for _, lsp in ipairs(servers) do

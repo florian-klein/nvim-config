@@ -70,7 +70,18 @@ local languages_and_lsps = {
   {
     "lervag/vimtex",
     ft = "tex",
-    lazy = true
+    lazy = true,
+    config = function()
+        vim.g.vimtex_compiler_latexmk = {
+        options = {
+            '-verbose',
+            '-file-line-error',
+            '-synctex=1',
+            '-interaction=nonstopmode',
+            '-shell-escape',
+        },
+    }
+    end
   },
   --- java
   {
@@ -137,6 +148,7 @@ local languages_and_lsps = {
     ft = "asm"
   },
   --- git 
+  {'tpope/vim-fugitive', version = "*", lazy = false},
   {
       "kdheepak/lazygit.nvim",
       -- optional for floating window border decoration
