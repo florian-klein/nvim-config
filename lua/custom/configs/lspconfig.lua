@@ -12,7 +12,7 @@ if success and emitter and emitter.setMaxListeners then
   emitter:setMaxListeners(20) -- Increase max listeners
 end
 
-local servers = { "html", "cssls", "clangd", "rust_analyzer", "texlab", "ocamllsp", "asm_lsp", "jedi_language_server", "ruff", "jdtls", "lua_ls"}
+local servers = { "html", "cssls", "clangd", "rust_analyzer", "texlab", "ocamllsp", "asm_lsp", "jedi_language_server", "ruff", "basedpyright"}
 
 -- Check if the required LSP servers are installed
 for _, server in ipairs(servers) do
@@ -22,14 +22,14 @@ for _, server in ipairs(servers) do
 end
 
 -- Conditional setup for JDTLS (Java)
-if vim.tbl_contains(servers, "jdtls") then
-  local status_ok, java = pcall(require, "java")
-  if not status_ok then
-    vim.notify("Java LSP (jdtls) setup failed. Ensure the 'java' module is installed.", vim.log.levels.ERROR)
-  else
-    java.setup()
-  end
-end
+-- if vim.tbl_contains(servers, "jdtls") then
+--   local status_ok, java = pcall(require, "java")
+--   if not status_ok then
+--     vim.notify("Java LSP (jdtls) setup failed. Ensure the 'java' module is installed.", vim.log.levels.ERROR)
+--   else
+--     java.setup()
+--   end
+-- end
 
 -- lspconfig.pylyzer.setup({
 --   cmd = { "pylyzer", "--server" },
@@ -63,25 +63,27 @@ for _, lsp in ipairs(servers) do
     settings = {
       ["rust-analyzer"] = {
         lru = {
-          capacity = 8192, -- Increase cache capacity
+          capacity = 8192, -- Cache capacity (higher means more cache, but more memory usage)
         },
         cargo = {
-          loadOutDirsFromCheck = true,
-          allFeatures = true,
+          loadOutDirsFromCheck = false,
+          allFeatures = false,
         },
         procMacro = {
           enable = true,
         },
+        diagnostics = {
+          enable = false, -- Disables real-time diagnostics, improving speed
+        },
         checkOnSave = {
-          allFeatures = true,
+          allFeatures = false,
           command = "clippy",
           extraArgs = {
             "--",
             "--no-deps",
-            "-Wclippy::correctness",
-            "-Wclippy::perf",
-            "-Wclippy::complexity",
-            "-Wclippy::suspicious",
+            "-Wclippy::all",
+            "-Wclippy::nursery",
+            "-Aclippy::significant_drop_tightening",
           },
         },
       },

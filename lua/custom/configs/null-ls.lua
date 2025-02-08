@@ -3,7 +3,7 @@ local present, null_ls = pcall(require, "null-ls")
 if not present then
   return
 end
-
+--
 local b = null_ls.builtins
 
 local sources = {
@@ -26,6 +26,9 @@ local sources = {
 
   -- Linting
   -- b.diagnostics.shellcheck, -- Shellcheck for Shell
+  -- b.diagnostics.checkstyle.with({
+  --       extra_args = { "-c", "/Users/florianklein/.config/checkstyle" }, -- or "/sun_checks.xml" or path to self written rules
+  -- }),
 
 }
 
@@ -35,7 +38,7 @@ null_ls.setup {
 }
 
 -- Enable format on save for supported filetypes
-local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
+-- local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
 require("null-ls").setup({
     -- you can reuse a shared lspconfig on_attach callback here
     on_attach = function(client, bufnr)

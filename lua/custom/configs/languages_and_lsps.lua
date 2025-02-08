@@ -40,20 +40,44 @@ local languages_and_lsps = {
     end
   },
   -- overrde plugin configs
-  {
-    'rcarriga/nvim-notify',
-    lazy = false,
-  },
-  {
-    'mrded/nvim-lsp-notify',
-    lazy = false,
-    requires = { 'rcarriga/nvim-notify' },
-    config = function()
-      require('lsp-notify').setup({
-        notify = require('notify'),
-      })
-    end
-  },
+  -- {
+  --   'rcarriga/nvim-notify',
+  --   lazy = false,
+  --   config = function()
+  --     require('notify').setup({
+  --       background_colour = "NotifyBackground",
+  --       fps = 30,
+  --       icons = {
+  --         DEBUG = "",
+  --         ERROR = "",
+  --         INFO = "",
+  --         TRACE = "✎",
+  --         WARN = ""
+  --       },
+  --       level = 2,
+  --       minimum_width = 50,
+  --       max_height = 1,
+  --       render = "default",
+  --       stages = "fade",
+  --       time_formats = {
+  --         notification = "%T",
+  --         notification_history = "%FT%T"
+  --       },
+  --       timeout = 2000,
+  --       top_down = false
+  --   })
+  --   end
+  -- },
+  -- {
+  --   'mrded/nvim-lsp-notify',
+  --   lazy = false,
+  --   requires = { 'rcarriga/nvim-notify' },
+  --   config = function()
+  --     require('lsp-notify').setup({
+  --       notify = require('notify'),
+  --     })
+  --   end
+  -- },
   {
     "nvim-treesitter/nvim-treesitter",
     opts = overrides.treesitter,
@@ -87,6 +111,7 @@ local languages_and_lsps = {
   {
     'nvim-java/nvim-java',
     ft = "java",
+    lazy = true,
     dependencies = {
       'nvim-java/lua-async-await',
       'nvim-java/nvim-java-refactor',
@@ -148,7 +173,7 @@ local languages_and_lsps = {
     ft = "asm"
   },
   --- git 
-  {'tpope/vim-fugitive', version = "*", lazy = false},
+  {'tpope/vim-fugitive', version = "*", lazy = true},
   {
       "kdheepak/lazygit.nvim",
       -- optional for floating window border decoration
