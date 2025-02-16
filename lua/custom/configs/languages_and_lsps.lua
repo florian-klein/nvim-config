@@ -1,4 +1,4 @@
-local overrides = require("custom.configs.overrides");
+local overrides = require "custom.configs.overrides"
 local languages_and_lsps = {
   {
     "neovim/nvim-lspconfig",
@@ -16,28 +16,32 @@ local languages_and_lsps = {
       require "custom.configs.lspconfig"
     end, -- Override to setup mason-lspconfig
   },
-  --- display lsp errors using trouble 
   {
-   "folke/trouble.nvim",
-   lazy = false,
-   dependencies = { "nvim-tree/nvim-web-devicons" },
-   opts = {
-    -- your configuration comes here
-    -- or leave it empty to use the default settings
-    -- refer to the configuration section below
-   },
+    "HiPhish/rainbow-delimiters.nvim",
+    lazy = false,
+  },
+  --- display lsp errors using trouble
+  {
+    "folke/trouble.nvim",
+    lazy = false,
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    opts = {
+      -- your configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+    },
   },
   -- refactor plugin
   {
-    'MagicDuck/grug-far.nvim',
+    "MagicDuck/grug-far.nvim",
     lazy = false,
     config = function()
-      require('grug-far').setup({
+      require("grug-far").setup {
         -- options, see Configuration section below
         -- there are no required options atm
         -- engine = 'ripgrep' is default, but 'astgrep' can be specified
-      });
-    end
+      }
+    end,
   },
   -- overrde plugin configs
   -- {
@@ -89,48 +93,48 @@ local languages_and_lsps = {
   },
   {
     "alaviss/nim.nvim",
-    lazy = true
+    lazy = true,
   },
   {
     "lervag/vimtex",
     ft = "tex",
     lazy = true,
     config = function()
-        vim.g.vimtex_compiler_latexmk = {
+      vim.g.vimtex_compiler_latexmk = {
         options = {
-            '-verbose',
-            '-file-line-error',
-            '-synctex=1',
-            '-interaction=nonstopmode',
-            '-shell-escape',
+          "-verbose",
+          "-file-line-error",
+          "-synctex=1",
+          "-interaction=nonstopmode",
+          "-shell-escape",
         },
-    }
-    end
+      }
+    end,
   },
   --- java
   {
-    'nvim-java/nvim-java',
+    "nvim-java/nvim-java",
     ft = "java",
     lazy = true,
     dependencies = {
-      'nvim-java/lua-async-await',
-      'nvim-java/nvim-java-refactor',
-      'nvim-java/nvim-java-core',
-      'nvim-java/nvim-java-test',
-      'nvim-java/nvim-java-dap',
-      'MunifTanjim/nui.nvim',
-      'neovim/nvim-lspconfig',
-      'mfussenegger/nvim-dap',
+      "nvim-java/lua-async-await",
+      "nvim-java/nvim-java-refactor",
+      "nvim-java/nvim-java-core",
+      "nvim-java/nvim-java-test",
+      "nvim-java/nvim-java-dap",
+      "MunifTanjim/nui.nvim",
+      "neovim/nvim-lspconfig",
+      "mfussenegger/nvim-dap",
       {
-        'JavaHello/spring-boot.nvim',
-        commit = '218c0c26c14d99feca778e4d13f5ec3e8b1b60f0',
+        "JavaHello/spring-boot.nvim",
+        commit = "218c0c26c14d99feca778e4d13f5ec3e8b1b60f0",
       },
       {
-        'williamboman/mason.nvim',
+        "williamboman/mason.nvim",
         opts = {
           registries = {
-            'github:nvim-java/mason-registry',
-            'github:mason-org/mason-registry',
+            "github:nvim-java/mason-registry",
+            "github:mason-org/mason-registry",
           },
         },
       },
@@ -144,44 +148,44 @@ local languages_and_lsps = {
   -- },
   {
     "ianks/vim-tsx",
-    lazy = true
+    lazy = true,
   },
   {
-  "neovim/nvim-lspconfig",
+    "neovim/nvim-lspconfig",
 
-   dependencies = {
-     "jose-elias-alvarez/null-ls.nvim",
-     config = function()
-       require "custom.configs.null-ls"
-     end,
-   },
-   config = function()
+    dependencies = {
+      "jose-elias-alvarez/null-ls.nvim",
+      config = function()
+        require "custom.configs.null-ls"
+      end,
+    },
+    config = function()
       require "plugins.configs.lspconfig"
       require "custom.configs.lspconfig"
-   end,
+    end,
   },
-  ---- coq 
+  ---- coq
   {
     "whonore/Coqtail",
     lazy = true,
-    ft = "coq"
+    ft = "coq",
   },
   ---- asm_lsp
   {
-    'rush-rs/tree-sitter-asm',
+    "rush-rs/tree-sitter-asm",
     lazy = true,
-    ft = "asm"
+    ft = "asm",
   },
-  --- git 
-  {'tpope/vim-fugitive', version = "*", lazy = true},
+  --- git
+  { "tpope/vim-fugitive", version = "*", lazy = true },
   {
-      "kdheepak/lazygit.nvim",
-      -- optional for floating window border decoration
-      dependencies = {
-          "nvim-lua/plenary.nvim",
-      },
+    "kdheepak/lazygit.nvim",
+    -- optional for floating window border decoration
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
   },
-  --- peeking on defintion under cursor 
+  --- peeking on defintion under cursor
   {
     "https://github.com/nvim-treesitter/nvim-treesitter-textobjects.git",
     lazy = false,
@@ -191,22 +195,21 @@ local languages_and_lsps = {
     "pmizio/typescript-tools.nvim",
     dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
     opts = {},
-    lazy = true, 
-    ft = "typescript"
+    lazy = true,
+    ft = "typescript",
   },
   {
-  'stevearc/aerial.nvim',
-  lazy = false,
-  opts = {},
-  -- Optional dependencies
-  dependencies = {
-     "nvim-treesitter/nvim-treesitter",
-     "nvim-tree/nvim-web-devicons"
-  },
-  config = function()
-    require('aerial'):setup({
-  })
-  end
+    "stevearc/aerial.nvim",
+    lazy = false,
+    opts = {},
+    -- Optional dependencies
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-tree/nvim-web-devicons",
+    },
+    config = function()
+      require("aerial"):setup {}
+    end,
   },
 }
 

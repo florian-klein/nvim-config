@@ -5,19 +5,19 @@
 --   pattern = "*",
 --   command = "tabdo wincmd =",
 -- })
-vim.g.leetcode_solution_filetype = 'cpp'
+vim.g.leetcode_solution_filetype = "cpp"
 vim.g.maplocalleader = ","
-vim.g.copilot_disable_diagnostics = true
-vim.g.leetcode_browser = 'chrome'
+-- vim.g.copilot_disable_diagnostics = false
+vim.g.leetcode_browser = "chrome"
 -- vim.opt.conceallevel = 1
-vim.api.nvim_set_keymap('i', '<C-/>', 'copilot#Accept("<CR>")', {expr=true, silent=true})
+vim.api.nvim_set_keymap("i", "<C-/>", 'copilot#Accept("<CR>")', { expr = true, silent = true })
 
 vim.g.vimtex_compiler_latexmk = {
   options = {
-      '-verbose',
-      '-file-line-error',
-      '-synctex=1',
-      '-interaction=nonstopmode',
-      '-shell-escape',
-  }
+    "-verbose",
+    "-file-line-error",
+    "-synctex=1",
+    "-interaction=nonstopmode",
+    "-shell-escape",
+  },
 }

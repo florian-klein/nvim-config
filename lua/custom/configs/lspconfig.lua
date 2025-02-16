@@ -1,7 +1,7 @@
 local on_attach = require("plugins.configs.lspconfig").on_attach
 local capabilities = require("plugins.configs.lspconfig").capabilities
 
-local lspconfig = require("lspconfig")
+local lspconfig = require "lspconfig"
 
 -- Set Rust toolchain to nightly
 vim.env.RUSTUP_TOOLCHAIN = "nightly"
@@ -12,7 +12,8 @@ if success and emitter and emitter.setMaxListeners then
   emitter:setMaxListeners(20) -- Increase max listeners
 end
 
-local servers = { "html", "cssls", "clangd", "rust_analyzer", "texlab", "ocamllsp", "asm_lsp", "jedi_language_server", "ruff", "basedpyright"}
+local servers =
+  { "html", "cssls", "clangd", "rust_analyzer", "texlab", "ocamllsp", "asm_lsp", "jedi_language_server", "ruff" }
 
 -- Check if the required LSP servers are installed
 for _, server in ipairs(servers) do
@@ -20,6 +21,14 @@ for _, server in ipairs(servers) do
     vim.notify("LSP server '" .. server .. "' is not installed. Skipping configuration.", vim.log.levels.WARN)
   end
 end
+
+lspconfig.basedpyright.setup {
+  cmd = {
+    "node",
+    "--max-old-space-size=4096",
+    "/Users/florianklein/.local/share/nvim/mason/bin/basedpyright-langserver",
+  },
+}
 
 -- Conditional setup for JDTLS (Java)
 -- if vim.tbl_contains(servers, "jdtls") then
@@ -136,7 +145,7 @@ function UpdateRustAnalyzerFeatures(features, no_default_features)
 end
 
 -- Command to switch Rust Analyzer features dynamically
-vim.api.nvim_create_user_command('RustSwitchFeatures', function(args)
+vim.api.nvim_create_user_command("RustSwitchFeatures", function(args)
   if args.args == "" then
     vim.notify("No features provided. Please specify features separated by commas.", vim.log.levels.ERROR)
     return
@@ -149,7 +158,7 @@ end, {
 })
 
 -- Command to disable all non-default Rust Analyzer features
-vim.api.nvim_create_user_command('RustDisableNonDefaultFeatures', function()
+vim.api.nvim_create_user_command("RustDisableNonDefaultFeatures", function()
   UpdateRustAnalyzerFeatures({}, true)
 end, {
   nargs = 0,
