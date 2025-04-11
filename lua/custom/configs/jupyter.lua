@@ -6,8 +6,18 @@ local jupyter_elements = {
     keys = function()
       if vim.bo.filetype == "ipynb" or vim.bo.filetype == "python" then
         return {
-          { "<C-d>", function() require("notebook-navigator").move_cell "d" end },
-          { "<C-u>", function() require("notebook-navigator").move_cell "u" end },
+          {
+            "<C-d>",
+            function()
+              require("notebook-navigator").move_cell "d"
+            end,
+          },
+          {
+            "<C-u>",
+            function()
+              require("notebook-navigator").move_cell "u"
+            end,
+          },
           { "<leader>X", "<cmd>lua require('notebook-navigator').run_cell()<cr>" },
           { "<S-ENTER>", "<cmd>lua require('notebook-navigator').run_and_move()<cr>" },
         }
@@ -23,14 +33,14 @@ local jupyter_elements = {
     },
     config = function()
       local nn = require "notebook-navigator"
-      nn.setup({ activate_hydra_keys = "<leader>h" })
+      nn.setup { activate_hydra_keys = "<leader>h" }
     end,
   },
   {
     "hkupty/iron.nvim",
     config = function()
       local iron = require "iron.core"
-      iron.setup({
+      iron.setup {
         config = {
           scratch_repl = true,
           repl_definition = {
@@ -41,16 +51,11 @@ local jupyter_elements = {
           },
           repl_open_cmd = "vertical botright 80 split",
         },
-      })
+      }
     end,
   },
   {
-  "GCBallesteros/jupytext.nvim",
-  config = true,
-  lazy = false,
-  },
-  {
-  "echasnovski/mini.hipatterns",
+    "echasnovski/mini.hipatterns",
     lazy = true,
     ft = { "ipynb", "python" },
     dependencies = { "GCBallesteros/NotebookNavigator.nvim" },

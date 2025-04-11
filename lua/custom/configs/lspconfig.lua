@@ -12,8 +12,17 @@ if success and emitter and emitter.setMaxListeners then
   emitter:setMaxListeners(20) -- Increase max listeners
 end
 
-local servers =
-  { "html", "cssls", "clangd", "rust_analyzer", "texlab", "ocamllsp", "asm_lsp", "jedi_language_server", "ruff" }
+local servers = {
+  "html",
+  "cssls",
+  "clangd",
+  "rust_analyzer",
+  "texlab",
+  "ocamllsp",
+  "asm_lsp",
+  "jedi_language_server",
+  "typescript-language-server",
+}
 
 -- Check if the required LSP servers are installed
 for _, server in ipairs(servers) do
@@ -22,13 +31,26 @@ for _, server in ipairs(servers) do
   end
 end
 
-lspconfig.basedpyright.setup {
-  cmd = {
-    "node",
-    "--max-old-space-size=4096",
-    "/Users/florianklein/.local/share/nvim/mason/bin/basedpyright-langserver",
-  },
-}
+-- lspconfig.basedpyright.setup {
+--   cmd = {
+--     "node",
+--     "--max-old-space-size=4096",
+--     "/Users/florianklein/.local/share/nvim/mason/packages/basedpyright/venv/lib/python3.10/site-packages/basedpyright/langserver.index.js",
+--     "--stdio",
+--   },
+--   on_attach = on_attach,
+--   capabilities = capabilities,
+--   settings = {
+--     basedpyright = {
+--       analysis = {
+--         typeCheckingMode = "off",
+--         inlayHints = {
+--           callArgumentNames = true,
+--         },
+--       },
+--     },
+--   },
+-- }
 
 -- Conditional setup for JDTLS (Java)
 -- if vim.tbl_contains(servers, "jdtls") then

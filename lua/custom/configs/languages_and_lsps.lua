@@ -100,6 +100,7 @@ local languages_and_lsps = {
     ft = "tex",
     lazy = true,
     config = function()
+      vim.g.vimtex_format_enabled = true
       vim.g.vimtex_compiler_latexmk = {
         options = {
           "-verbose",
