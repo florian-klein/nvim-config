@@ -226,10 +226,27 @@ local default_plugins = {
       require("nvim-tree").setup(opts)
     end,
   },
-
+  {
+    "nvim-telescope/telescope-frecency.nvim",
+    -- install the latest stable version
+    version = "*",
+    config = function()
+      require("telescope").load_extension "frecency"
+    end,
+  },
   {
     "nvim-telescope/telescope.nvim",
-    dependencies = "nvim-treesitter/nvim-treesitter",
+    dependencies = {
+      { "nvim-treesitter/nvim-treesitter" },
+      {
+        "nvim-telescope/telescope-live-grep-args.nvim",
+        version = "^1.0.0",
+      },
+      {
+        "nvim-telescope/telescope-fzf-native.nvim",
+        build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release",
+      },
+    },
     cmd = "Telescope",
     init = function()
       require("core.utils").load_mappings "telescope"

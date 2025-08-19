@@ -21,7 +21,7 @@ local servers = {
   "ocamllsp",
   "asm_lsp",
   "jedi_language_server",
-  "typescript-language-server",
+  "ruff",
 }
 
 -- Check if the required LSP servers are installed
@@ -30,27 +30,6 @@ for _, server in ipairs(servers) do
     vim.notify("LSP server '" .. server .. "' is not installed. Skipping configuration.", vim.log.levels.WARN)
   end
 end
-
--- lspconfig.basedpyright.setup {
---   cmd = {
---     "node",
---     "--max-old-space-size=4096",
---     "/Users/florianklein/.local/share/nvim/mason/packages/basedpyright/venv/lib/python3.10/site-packages/basedpyright/langserver.index.js",
---     "--stdio",
---   },
---   on_attach = on_attach,
---   capabilities = capabilities,
---   settings = {
---     basedpyright = {
---       analysis = {
---         typeCheckingMode = "off",
---         inlayHints = {
---           callArgumentNames = true,
---         },
---       },
---     },
---   },
--- }
 
 -- Conditional setup for JDTLS (Java)
 -- if vim.tbl_contains(servers, "jdtls") then
@@ -97,7 +76,6 @@ for _, lsp in ipairs(servers) do
           capacity = 8192, -- Cache capacity (higher means more cache, but more memory usage)
         },
         cargo = {
-          loadOutDirsFromCheck = false,
           allFeatures = false,
         },
         procMacro = {
@@ -106,17 +84,17 @@ for _, lsp in ipairs(servers) do
         diagnostics = {
           enable = false, -- Disables real-time diagnostics, improving speed
         },
-        checkOnSave = {
-          allFeatures = false,
-          command = "clippy",
-          extraArgs = {
-            "--",
-            "--no-deps",
-            "-Wclippy::all",
-            "-Wclippy::nursery",
-            "-Aclippy::significant_drop_tightening",
-          },
-        },
+        -- checkOnSave = {
+        --   allFeatures = true,
+        --   command = "clippy",
+        --   extraArgs = {
+        --     "--",
+        --     "--no-deps",
+        --     "-Wclippy::all",
+        --     "-Wclippy::nursery",
+        --     "-Aclippy::significant_drop_tightening",
+        --   },
+        -- },
       },
     }
   end

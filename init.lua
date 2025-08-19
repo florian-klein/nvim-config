@@ -1,14 +1,15 @@
 require "core"
 
 local custom_init_path = vim.api.nvim_get_runtime_file("lua/custom/init.lua", false)[1]
--- local g:loaded_python3_provider=0; How can you do this correctly 
-vim.g.python3_host_prog = "/Users/florianklein/miniconda3/bin/python3"
+-- local g:loaded_python3_provider=0; How can you do this correctly
+vim.g.python3_host_prog = "/usr/bin/python3"
+vim.env.PATH = vim.fn.getcwd() .. "/.venv/bin:" .. vim.env.PATH
 
 if custom_init_path then
   dofile(custom_init_path)
 end
 
--- assert that required ft files were created at ~/.vim/ftdetect/ipynb.vim 
+-- assert that required ft files were created at ~/.vim/ftdetect/ipynb.vim
 -- preint in vim: :echo
 -- assert(vim.fn.filereadable(file_type_locations .. "ipynb.vim") == 1, "ftdetect/ipynb.vim not found. Please create a custom filetype for that file.")
 -- assert(vim.fn.filereadable(file_type_locations .. "v.vim") == 1, "ftdetect/v.vim not found. Please create a custom filetype for that file.")
