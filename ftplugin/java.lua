@@ -3,7 +3,7 @@ if vim.g.jdtls_setup_done then
 end
 vim.g.jdtls_setup_done = true
 
-local lspconfig = require("lspconfig")
+local lspconfig = vim.lsp.config
 
 local on_attach = require("plugins.configs.lspconfig").on_attach
 local capabilities = require("plugins.configs.lspconfig").capabilities

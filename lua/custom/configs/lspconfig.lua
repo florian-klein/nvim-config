@@ -1,8 +1,8 @@
 local on_attach = require("plugins.configs.lspconfig").on_attach
 local capabilities = require("plugins.configs.lspconfig").capabilities
 
-local lspconfig = require "lspconfig"
 
+local lspconfig = vim.lsp.config
 -- Set Rust toolchain to nightly
 vim.env.RUSTUP_TOOLCHAIN = "nightly"
 
@@ -18,15 +18,13 @@ local servers = {
   "clangd",
   "rust_analyzer",
   "texlab",
-  "ocamllsp",
   "asm_lsp",
   "jedi_language_server",
-  "ruff",
 }
 
 -- Check if the required LSP servers are installed
 for _, server in ipairs(servers) do
-  if not lspconfig[server] then
+  if not vim.lsp.config[server] then
     vim.notify("LSP server '" .. server .. "' is not installed. Skipping configuration.", vim.log.levels.WARN)
   end
 end
@@ -112,7 +110,8 @@ for _, lsp in ipairs(servers) do
 
   -- Check if the LSP server exists before setting up
   if lspconfig[lsp] then
-    lspconfig[lsp].setup(setup_config)
+    vim.lsp.config(lsp, setup_config)
+    vim.lsp.enable(lsp)
   else
     vim.notify("LSP server '" .. lsp .. "' is not available for setup.", vim.log.levels.ERROR)
   end

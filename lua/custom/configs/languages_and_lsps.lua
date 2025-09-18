@@ -5,7 +5,7 @@ local languages_and_lsps = {
     dependencies = {
       -- format & linting
       {
-        "jose-elias-alvarez/null-ls.nvim",
+        "nvimtools/none-ls.nvim",
         config = function()
           require "custom.configs.null-ls"
         end,
@@ -155,7 +155,7 @@ local languages_and_lsps = {
     "neovim/nvim-lspconfig",
 
     dependencies = {
-      "jose-elias-alvarez/null-ls.nvim",
+      "nvimtools/none-ls.nvim",
       config = function()
         require "custom.configs.null-ls"
       end,
