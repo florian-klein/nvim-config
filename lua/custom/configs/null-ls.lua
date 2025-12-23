@@ -11,7 +11,7 @@ local sources = {
   -- Webdev stuff
   b.formatting.prettier, -- Prettier for HTML, Markdown, CSS, and JavaScript
   -- Rust
-  b.formatting.rustfmt, -- Rustfmt for Rust
+  -- b.formatting.rustfmt, -- Rustfmt for Rust
   -- python
   b.formatting.black,
   -- C/C++

@@ -1,8 +1,54 @@
-local on_attach = require("plugins.configs.lspconfig").on_attach
+local base_on_attach = require("plugins.configs.lspconfig").on_attach
 local capabilities = require("plugins.configs.lspconfig").capabilities
 
-
 local lspconfig = vim.lsp.config
+
+-- Add handler for workspace/diagnostic/refresh (suppresses warning)
+vim.lsp.handlers["workspace/diagnostic/refresh"] = function(_, _, ctx)
+  local ns = vim.lsp.diagnostic.get_namespace(ctx.client_id)
+  pcall(vim.diagnostic.reset, ns)
+  return true
+end
+
+-- Disable rust-analyzer auto-start (handled by rustaceanvim)
+vim.g.rustaceanvim_standalone = false
+vim.lsp.config["rust_analyzer"] = { enabled = false }
+
+-- Create augroup for format on save
+local format_augroup = vim.api.nvim_create_augroup("LspFormatting", { clear = true })
+
+-- LSPs that should use their native formatting (not null-ls)
+-- Note: rust_analyzer is handled by rustaceanvim
+local lsp_formatting_enabled = {
+  clangd = true,
+  html = true,
+  cssls = true,
+  texlab = true,
+}
+
+-- Custom on_attach that adds format on save
+local on_attach = function(client, bufnr)
+  -- Call base on_attach first
+  base_on_attach(client, bufnr)
+
+  -- Re-enable formatting for specified LSPs (NvChad disables it by default)
+  if lsp_formatting_enabled[client.name] then
+    client.server_capabilities.documentFormattingProvider = true
+    client.server_capabilities.documentRangeFormattingProvider = true
+  end
+
+  -- Format on save if the LSP supports formatting
+  if client.server_capabilities.documentFormattingProvider then
+    vim.api.nvim_clear_autocmds({ group = format_augroup, buffer = bufnr })
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      group = format_augroup,
+      buffer = bufnr,
+      callback = function()
+        vim.lsp.buf.format({ bufnr = bufnr, async = false })
+      end,
+    })
+  end
+end
 -- Set Rust toolchain to nightly
 vim.env.RUSTUP_TOOLCHAIN = "nightly"
 
@@ -16,7 +62,7 @@ local servers = {
   "html",
   "cssls",
   "clangd",
-  "rust_analyzer",
+  -- "rust_analyzer", -- Handled by rustaceanvim
   "texlab",
   "asm_lsp",
   "jedi_language_server",
@@ -64,48 +110,79 @@ end
 --   },
 -- })
 
+-- LSP-specific settings for performance
+local lsp_settings = {
+  rust_analyzer = {
+    ["rust-analyzer"] = {
+      lru = { capacity = 4096 },
+      cargo = {
+        allFeatures = false,
+        buildScripts = { enable = true },
+      },
+      procMacro = { enable = true },
+      diagnostics = {
+        enable = true,
+        experimental = { enable = false },
+      },
+      checkOnSave = {
+        enable = true,
+        command = "check",
+        extraArgs = { "--target-dir", "target/analyzer" },
+      },
+      workspace = {
+        symbol = { search = { limit = 128 } },
+      },
+      inlayHints = {
+        parameterHints = { enable = false },
+        chainingHints = { enable = false },
+        closingBraceHints = { enable = false },
+        typeHints = { enable = true },
+        lifetimeElisionHints = { enable = "skip_trivial" },
+      },
+      completion = {
+        limit = 50,
+        autoimport = { enable = true },
+      },
+      rustfmt = {
+        extraArgs = {},
+        overrideCommand = nil,
+      },
+    },
+  },
+  clangd = {
+    -- clangd settings are passed via cmd args, not settings
+  },
+}
+
+-- LSP-specific command overrides
+local lsp_cmd = {
+  clangd = {
+    "clangd",
+    "--background-index",
+    "--clang-tidy",
+    "--completion-style=detailed",
+    "--header-insertion=iwyu",
+    "--pch-storage=memory",
+    "-j=4", -- Parallel indexing jobs
+    "--malloc-trim", -- Release memory after indexing
+  },
+}
+
 -- Loop through servers and set configurations
 for _, lsp in ipairs(servers) do
-  local settings = {}
-  if lsp == "rust_analyzer" then
-    settings = {
-      ["rust-analyzer"] = {
-        lru = {
-          capacity = 8192, -- Cache capacity (higher means more cache, but more memory usage)
-        },
-        cargo = {
-          allFeatures = false,
-        },
-        procMacro = {
-          enable = true,
-        },
-        diagnostics = {
-          enable = false, -- Disables real-time diagnostics, improving speed
-        },
-        -- checkOnSave = {
-        --   allFeatures = true,
-        --   command = "clippy",
-        --   extraArgs = {
-        --     "--",
-        --     "--no-deps",
-        --     "-Wclippy::all",
-        --     "-Wclippy::nursery",
-        --     "-Aclippy::significant_drop_tightening",
-        --   },
-        -- },
-      },
-    }
-  end
-
   local setup_config = {
     on_attach = on_attach,
     capabilities = capabilities,
-    progress = true,
   }
 
-  -- Apply settings only if non-empty
-  if next(settings) ~= nil then
-    setup_config.settings = settings
+  -- Apply settings if defined
+  if lsp_settings[lsp] and next(lsp_settings[lsp]) ~= nil then
+    setup_config.settings = lsp_settings[lsp]
+  end
+
+  -- Apply custom cmd if defined
+  if lsp_cmd[lsp] then
+    setup_config.cmd = lsp_cmd[lsp]
   end
 
   -- Check if the LSP server exists before setting up
