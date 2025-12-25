@@ -1,8 +1,6 @@
 local base_on_attach = require("plugins.configs.lspconfig").on_attach
 local capabilities = require("plugins.configs.lspconfig").capabilities
 
-local lspconfig = vim.lsp.config
-
 -- Add handler for workspace/diagnostic/refresh (suppresses warning)
 vim.lsp.handlers["workspace/diagnostic/refresh"] = function(_, _, ctx)
   local ns = vim.lsp.diagnostic.get_namespace(ctx.client_id)
@@ -14,6 +12,21 @@ end
 vim.g.rustaceanvim_standalone = false
 vim.lsp.config["rust_analyzer"] = { enabled = false }
 
+-- Disable ruff's hover in favor of ty's hover for Python
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = vim.api.nvim_create_augroup("lsp_attach_disable_ruff_hover", { clear = true }),
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if client == nil then
+      return
+    end
+    if client.name == "ruff" then
+      client.server_capabilities.hoverProvider = false
+    end
+  end,
+  desc = "LSP: Disable hover capability from Ruff (use ty instead)",
+})
+
 -- Create augroup for format on save
 local format_augroup = vim.api.nvim_create_augroup("LspFormatting", { clear = true })
 
@@ -24,6 +37,7 @@ local lsp_formatting_enabled = {
   html = true,
   cssls = true,
   texlab = true,
+  ruff = true, -- Python formatting
 }
 
 -- Custom on_attach that adds format on save
@@ -44,7 +58,11 @@ local on_attach = function(client, bufnr)
       group = format_augroup,
       buffer = bufnr,
       callback = function()
-        vim.lsp.buf.format({ bufnr = bufnr, async = false })
+        vim.lsp.buf.format({
+          bufnr = bufnr,
+          async = false,
+          timeout_ms = 3000,
+        })
       end,
     })
   end
@@ -65,15 +83,10 @@ local servers = {
   -- "rust_analyzer", -- Handled by rustaceanvim
   "texlab",
   "asm_lsp",
-  "jedi_language_server",
+  "ty", -- Python type checker (install via: uv tool install ty)
+  "ruff", -- Python linter + formatter (install via: uv tool install ruff)
 }
 
--- Check if the required LSP servers are installed
-for _, server in ipairs(servers) do
-  if not vim.lsp.config[server] then
-    vim.notify("LSP server '" .. server .. "' is not installed. Skipping configuration.", vim.log.levels.WARN)
-  end
-end
 
 -- Conditional setup for JDTLS (Java)
 -- if vim.tbl_contains(servers, "jdtls") then
@@ -110,8 +123,48 @@ end
 --   },
 -- })
 
+-- LSP-specific init_options (used for ruff, ty logging, etc.)
+local lsp_init_options = {
+  ruff = {
+    settings = {
+      logLevel = "warn",
+      lint = {
+        enable = true,
+      },
+      format = {
+        preview = true,
+      },
+      -- Exclude problematic directories
+      exclude = {
+        "**/miniconda3/**",
+        "**/.cache/**",
+        "**/site-packages/**",
+        "**/__pycache__/**",
+        "**/.venv/**",
+        "**/venv/**",
+      },
+    },
+  },
+  ty = {
+    -- Only logFile and logLevel go in init_options
+    logLevel = "warn",
+  },
+}
+
 -- LSP-specific settings for performance
 local lsp_settings = {
+  ty = {
+    ty = {
+      diagnosticMode = "openFilesOnly",
+      completions = {
+        autoImport = true,
+      },
+      inlayHints = {
+        variableTypes = true,
+        callArgumentNames = true,
+      },
+    },
+  },
   rust_analyzer = {
     ["rust-analyzer"] = {
       lru = { capacity = 4096 },
@@ -168,6 +221,13 @@ local lsp_cmd = {
   },
 }
 
+-- Custom root_markers for Python LSPs (prevents scanning home directory)
+-- These are checked in order; if none found, falls back to file's directory
+local lsp_root_markers = {
+  ruff = { "pyproject.toml", "ruff.toml", ".ruff.toml", "setup.py", "setup.cfg", "requirements.txt" },
+  ty = { "pyproject.toml", "ty.toml", ".ty.toml", "setup.py", "setup.cfg", "requirements.txt" },
+}
+
 -- Loop through servers and set configurations
 for _, lsp in ipairs(servers) do
   local setup_config = {
@@ -180,18 +240,24 @@ for _, lsp in ipairs(servers) do
     setup_config.settings = lsp_settings[lsp]
   end
 
+  -- Apply init_options if defined (for ruff, ty, etc.)
+  if lsp_init_options[lsp] then
+    setup_config.init_options = lsp_init_options[lsp]
+  end
+
   -- Apply custom cmd if defined
   if lsp_cmd[lsp] then
     setup_config.cmd = lsp_cmd[lsp]
   end
 
-  -- Check if the LSP server exists before setting up
-  if lspconfig[lsp] then
-    vim.lsp.config(lsp, setup_config)
-    vim.lsp.enable(lsp)
-  else
-    vim.notify("LSP server '" .. lsp .. "' is not available for setup.", vim.log.levels.ERROR)
+  -- Apply custom root_markers if defined (prevents scanning home directory)
+  if lsp_root_markers[lsp] then
+    setup_config.root_markers = lsp_root_markers[lsp]
   end
+
+  -- Configure and enable the LSP server
+  vim.lsp.config(lsp, setup_config)
+  vim.lsp.enable(lsp)
 end
 
 -- Function to dynamically update Rust Analyzer features
