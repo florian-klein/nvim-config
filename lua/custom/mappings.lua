@@ -86,6 +86,17 @@ M.general = {
     ["x"] = { ":wq<CR>", "quit" },
     ["<C-s>"] = { ":lua vim.lsp.buf.format()<CR>:w<CR>", "format and save file" },
     ["<leader>gb"] = { "<cmd> Telescope git_branches <CR>", "Git branches" },
+    -- Enhanced live grep with pattern support
+    ["<leader>fw"] = {
+      function()
+        require("telescope").extensions.live_grep_args.live_grep_args()
+      end,
+      "Live grep (with args)"
+    },
+    -- Undo history browser
+    ["<leader>fu"] = { "<cmd>Telescope undo<CR>", "Undo history" },
+    -- Frecency - frequency+recency based file finding
+    ["<leader>fp"] = { "<cmd>Telescope frecency<CR>", "Frecency files" },
     ["<leader>xx"] = { "<cmd>Trouble diagnostics toggle focus=true<cr>", "Trouble" },
     ["<leader>qf"] = { "<cmd>Trouble qflist toggle<cr>", "View Quickfix Options" },
     ["<leader>xd"] = { "<cmd>lua require('trouble').toggle('document_diagnostics')<CR>", "Document Diagnostics" },
@@ -139,6 +150,67 @@ M.general = {
     },
     -- ["f"] = { "<cmd>lua require('leap').leap({target_windows = {vim.fn.win_getid()}})<CR>", "Leap forward" },
     -- ["F"] = { "<cmd>lua require('leap').leap({target_windows = {vim.fn.win_getid()}, backward = true})<CR>", "Leap backward" },
+
+    -- ─── LaTeX Preview (fancy-cat in kitty) ───────────────────────────────────
+    ["<leader>lp"] = {
+      function()
+        local pdf = vim.fn.expand("%:p:r") .. ".pdf"
+        local socket = vim.env.KITTY_LISTEN_ON
+        if not socket then
+          vim.notify("KITTY_LISTEN_ON not set - restart kitty with remote control enabled", vim.log.levels.ERROR)
+          return
+        end
+        if vim.fn.filereadable(pdf) == 1 then
+          -- Switch to splits layout and launch fancy-cat in a 30% right split
+          vim.fn.system("kitty @ --to " .. socket .. " goto-layout splits")
+          vim.fn.system("kitty @ --to " .. socket .. " launch --location=vsplit --bias=30 fancy-cat " .. vim.fn.shellescape(pdf))
+        else
+          vim.notify("PDF not found: " .. pdf, vim.log.levels.WARN)
+        end
+      end,
+      "LaTeX: Preview PDF (30% right split)"
+    },
+    ["<leader>lc"] = {
+      function()
+        local file = vim.fn.expand("%")
+        vim.notify("Compiling LaTeX...", vim.log.levels.INFO)
+        vim.fn.jobstart({ "latexmk", "-pdf", "-interaction=nonstopmode", file }, {
+          on_exit = function(_, code)
+            if code == 0 then
+              vim.notify("LaTeX compiled successfully", vim.log.levels.INFO)
+            else
+              vim.notify("LaTeX compilation failed", vim.log.levels.ERROR)
+            end
+          end,
+        })
+      end,
+      "LaTeX: Compile PDF"
+    },
+    ["<leader>lw"] = {
+      function()
+        local file = vim.fn.expand("%")
+        vim.notify("Starting latexmk watch mode...", vim.log.levels.INFO)
+        vim.fn.jobstart({ "latexmk", "-pdf", "-pvc", "-interaction=nonstopmode", file }, {
+          detach = true,
+        })
+      end,
+      "LaTeX: Start watch mode (continuous compile)"
+    },
+    ["<leader>lx"] = {
+      function()
+        local dir = vim.fn.expand("%:p:h")
+        vim.notify("Cleaning LaTeX auxiliary files...", vim.log.levels.INFO)
+        vim.fn.jobstart({ "latexmk", "-c" }, {
+          cwd = dir,
+          on_exit = function(_, code)
+            if code == 0 then
+              vim.notify("LaTeX aux files cleaned", vim.log.levels.INFO)
+            end
+          end,
+        })
+      end,
+      "LaTeX: Clean auxiliary files"
+    },
   },
   v = {
     ["<TAB>"] = { ">gv", "shift selected text right" },

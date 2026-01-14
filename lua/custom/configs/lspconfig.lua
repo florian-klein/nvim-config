@@ -1,31 +1,19 @@
 local base_on_attach = require("plugins.configs.lspconfig").on_attach
 local capabilities = require("plugins.configs.lspconfig").capabilities
 
--- Add handler for workspace/diagnostic/refresh (suppresses warning)
-vim.lsp.handlers["workspace/diagnostic/refresh"] = function(_, _, ctx)
-  local ns = vim.lsp.diagnostic.get_namespace(ctx.client_id)
-  pcall(vim.diagnostic.reset, ns)
-  return true
+-- Handle workspace/diagnostic/refresh properly (don't reset, let LSP push new diagnostics)
+vim.lsp.handlers["workspace/diagnostic/refresh"] = function(_, result, ctx)
+  -- Simply acknowledge the refresh request - rust-analyzer will push new diagnostics
+  -- Don't reset diagnostics here as that would clear them before new ones arrive
+  return vim.NIL
 end
 
 -- Disable rust-analyzer auto-start (handled by rustaceanvim)
 vim.g.rustaceanvim_standalone = false
-vim.lsp.config["rust_analyzer"] = { enabled = false }
-
--- Disable ruff's hover in favor of ty's hover for Python
-vim.api.nvim_create_autocmd("LspAttach", {
-  group = vim.api.nvim_create_augroup("lsp_attach_disable_ruff_hover", { clear = true }),
-  callback = function(args)
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    if client == nil then
-      return
-    end
-    if client.name == "ruff" then
-      client.server_capabilities.hoverProvider = false
-    end
-  end,
-  desc = "LSP: Disable hover capability from Ruff (use ty instead)",
-})
+-- Prevent Neovim from auto-starting rust_analyzer (rustaceanvim manages it)
+pcall(function()
+  vim.lsp.config("rust_analyzer", { autostart = false })
+end)
 
 -- Create augroup for format on save
 local format_augroup = vim.api.nvim_create_augroup("LspFormatting", { clear = true })
@@ -40,33 +28,52 @@ local lsp_formatting_enabled = {
   ruff = true, -- Python formatting
 }
 
--- Custom on_attach that adds format on save
-local on_attach = function(client, bufnr)
-  -- Call base on_attach first
-  base_on_attach(client, bufnr)
+-- Main LspAttach autocmd for keymappings and setup
+-- The new vim.lsp.config/enable API doesn't call on_attach callbacks,
+-- so we must use LspAttach autocmd to set up keybindings
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = vim.api.nvim_create_augroup("lsp_attach_setup", { clear = true }),
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    local bufnr = args.buf
+    if client == nil then
+      return
+    end
 
-  -- Re-enable formatting for specified LSPs (NvChad disables it by default)
-  if lsp_formatting_enabled[client.name] then
-    client.server_capabilities.documentFormattingProvider = true
-    client.server_capabilities.documentRangeFormattingProvider = true
-  end
+    -- Disable ruff's hover in favor of ty's hover for Python
+    if client.name == "ruff" then
+      client.server_capabilities.hoverProvider = false
+    end
 
-  -- Format on save if the LSP supports formatting
-  if client.server_capabilities.documentFormattingProvider then
-    vim.api.nvim_clear_autocmds({ group = format_augroup, buffer = bufnr })
-    vim.api.nvim_create_autocmd("BufWritePre", {
-      group = format_augroup,
-      buffer = bufnr,
-      callback = function()
-        vim.lsp.buf.format({
-          bufnr = bufnr,
-          async = false,
-          timeout_ms = 3000,
-        })
-      end,
-    })
-  end
-end
+    -- Call the base on_attach for keymappings (gd, gr, K, etc.)
+    -- This is critical - vim.lsp.config/enable doesn't call on_attach callbacks
+    base_on_attach(client, bufnr)
+
+    -- Re-enable formatting for specified LSPs (NvChad disables it by default)
+    if lsp_formatting_enabled[client.name] then
+      client.server_capabilities.documentFormattingProvider = true
+      client.server_capabilities.documentRangeFormattingProvider = true
+    end
+
+    -- Format on save if the LSP supports formatting
+    if client.server_capabilities.documentFormattingProvider then
+      vim.api.nvim_clear_autocmds({ group = format_augroup, buffer = bufnr })
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        group = format_augroup,
+        buffer = bufnr,
+        callback = function()
+          vim.lsp.buf.format({
+            bufnr = bufnr,
+            async = false,
+            timeout_ms = 3000,
+          })
+        end,
+      })
+    end
+  end,
+  desc = "LSP: Setup keymappings, formatting, and capabilities",
+})
+
 -- Set Rust toolchain to nightly
 vim.env.RUSTUP_TOOLCHAIN = "nightly"
 
@@ -83,45 +90,8 @@ local servers = {
   -- "rust_analyzer", -- Handled by rustaceanvim
   "texlab",
   "asm_lsp",
-  "ty", -- Python type checker (install via: uv tool install ty)
-  "ruff", -- Python linter + formatter (install via: uv tool install ruff)
+  -- ty and ruff are configured below using lspconfig for better single-file support
 }
-
-
--- Conditional setup for JDTLS (Java)
--- if vim.tbl_contains(servers, "jdtls") then
---   local status_ok, java = pcall(require, "java")
---   if not status_ok then
---     vim.notify("Java LSP (jdtls) setup failed. Ensure the 'java' module is installed.", vim.log.levels.ERROR)
---   else
---     java.setup()
---   end
--- end
-
--- lspconfig.pylyzer.setup({
---   cmd = { "pylyzer", "--server" },
---   filetypes = { "python" },
---   root_dir = function(fname)
---     local root_files = {
---       "setup.py",
---       "tox.ini",
---       "requirements.txt",
---       "Pipfile",
---       "pyproject.toml",
---     }
---     return lspconfig.util.root_pattern(unpack(root_files))(fname)
---       or vim.fs.dirname(vim.fs.find(".git", { path = fname, upward = true })[1])
---   end,
---   single_file_support = true,
---   settings = {
---     python = {
---       diagnostics = false,
---       inlayHints = true,
---       smartCompletion = true,
---       checkOnType = true,
---     },
---   },
--- })
 
 -- LSP-specific init_options (used for ruff, ty logging, etc.)
 local lsp_init_options = {
@@ -221,17 +191,12 @@ local lsp_cmd = {
   },
 }
 
--- Custom root_markers for Python LSPs (prevents scanning home directory)
--- These are checked in order; if none found, falls back to file's directory
-local lsp_root_markers = {
-  ruff = { "pyproject.toml", "ruff.toml", ".ruff.toml", "setup.py", "setup.cfg", "requirements.txt" },
-  ty = { "pyproject.toml", "ty.toml", ".ty.toml", "setup.py", "setup.cfg", "requirements.txt" },
-}
+-- Root markers - empty table
+local lsp_root_markers = {}
 
 -- Loop through servers and set configurations
 for _, lsp in ipairs(servers) do
   local setup_config = {
-    on_attach = on_attach,
     capabilities = capabilities,
   }
 
@@ -250,7 +215,7 @@ for _, lsp in ipairs(servers) do
     setup_config.cmd = lsp_cmd[lsp]
   end
 
-  -- Apply custom root_markers if defined (prevents scanning home directory)
+  -- Apply custom root_markers if defined
   if lsp_root_markers[lsp] then
     setup_config.root_markers = lsp_root_markers[lsp]
   end
@@ -306,3 +271,61 @@ end, {
   nargs = 0,
   desc = "Disable all non-default features in rust-analyzer",
 })
+
+-- Python LSP root_dir function: falls back to file's directory (never home)
+local python_root_markers = { "ty.toml", "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" }
+
+local function python_root_dir(bufnr, on_dir)
+  local root = vim.fs.root(bufnr, python_root_markers)
+  if root and root ~= vim.env.HOME then
+    on_dir(root)
+  else
+    -- Fall back to file's directory for standalone files
+    local fname = vim.api.nvim_buf_get_name(bufnr)
+    on_dir(vim.fn.fnamemodify(fname, ":p:h"))
+  end
+end
+
+-- ty - Python type checker
+vim.lsp.config("ty", {
+  capabilities = capabilities,
+  root_dir = python_root_dir,
+  init_options = {
+    logLevel = "warn",
+  },
+  settings = {
+    ty = {
+      diagnosticMode = "openFilesOnly",
+      completions = {
+        autoImport = true,
+      },
+      inlayHints = {
+        variableTypes = true,
+        callArgumentNames = true,
+      },
+    },
+  },
+})
+vim.lsp.enable("ty")
+
+-- ruff - Python linter + formatter
+vim.lsp.config("ruff", {
+  capabilities = capabilities,
+  root_dir = python_root_dir,
+  init_options = {
+    settings = {
+      logLevel = "warn",
+      lint = { enable = true },
+      format = { preview = true },
+      exclude = {
+        "**/miniconda3/**",
+        "**/.cache/**",
+        "**/site-packages/**",
+        "**/__pycache__/**",
+        "**/.venv/**",
+        "**/venv/**",
+      },
+    },
+  },
+})
+vim.lsp.enable("ruff")

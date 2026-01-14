@@ -17,7 +17,9 @@ M.on_attach = function(client, bufnr)
   end
 
   if not utils.load_config().ui.lsp_semantic_tokens and client.supports_method "textDocument/semanticTokens" then
-    client.server_capabilities.semanticTokensProvider = nil
+    -- Use empty table instead of nil to prevent "attempt to index nil" errors
+    -- when Neovim's semantic_tokens.lua tries to access semanticTokensProvider.full
+    client.server_capabilities.semanticTokensProvider = {}
   end
 end
 

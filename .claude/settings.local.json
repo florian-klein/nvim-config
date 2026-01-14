@@ -9,7 +9,11 @@
       "Bash(tree:*)",
       "WebFetch(domain:docs.astral.sh)",
       "WebFetch(domain:mason-registry.dev)",
-      "Bash(ruff:*)"
+      "Bash(ruff:*)",
+      "Bash(kitty @:*)",
+      "Bash(sqlite3:*)",
+      "Bash(git stash:*)",
+      "WebFetch(domain:neovim.io)"
     ]
   }
 }

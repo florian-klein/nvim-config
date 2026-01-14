@@ -655,15 +655,19 @@ local languages_and_lsps = {
     lazy = true,
     config = function()
       vim.g.vimtex_format_enabled = true
+      vim.g.vimtex_compiler_method = "latexmk"
       vim.g.vimtex_compiler_latexmk = {
+        callback = 1,
+        continuous = 1,
         options = {
-          "-verbose",
           "-file-line-error",
           "-synctex=1",
           "-interaction=nonstopmode",
           "-shell-escape",
         },
       }
+      -- Quickfix: don't open automatically
+      vim.g.vimtex_quickfix_mode = 0
     end,
   },
   --- java

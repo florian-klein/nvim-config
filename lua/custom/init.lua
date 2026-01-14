@@ -46,7 +46,7 @@ vim.g.maplocalleader = ","
 -- vim.g.copilot_disable_diagnostics = false
 vim.g.leetcode_browser = "chrome"
 -- vim.opt.conceallevel = 1
-vim.api.nvim_set_keymap("i", "<C-/>", 'copilot#Accept("<CR>")', { expr = true, silent = true })
+-- Copilot keybindings are set in plugins.lua config
 
 vim.g.vimtex_format_enabled = true
 
