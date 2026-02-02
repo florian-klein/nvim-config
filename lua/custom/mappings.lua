@@ -84,7 +84,7 @@ M.general = {
     [";"] = { ":", "enter command mode", opts = { nowait = true } },
     ["s"] = { ":vs<CR>", "split" },
     ["x"] = { ":wq<CR>", "quit" },
-    ["<C-s>"] = { ":lua vim.lsp.buf.format()<CR>:w<CR>", "format and save file" },
+    ["<C-s>"] = { ":w<CR>", "save file" },
     ["<leader>gb"] = { "<cmd> Telescope git_branches <CR>", "Git branches" },
     -- Enhanced live grep with pattern support
     ["<leader>fw"] = {
@@ -161,9 +161,12 @@ M.general = {
           return
         end
         if vim.fn.filereadable(pdf) == 1 then
-          -- Switch to splits layout and launch fancy-cat in a 30% right split
-          vim.fn.system("kitty @ --to " .. socket .. " goto-layout splits")
-          vim.fn.system("kitty @ --to " .. socket .. " launch --location=vsplit --bias=30 fancy-cat " .. vim.fn.shellescape(pdf))
+          -- Switch to splits layout and launch fancy-cat in a 30% right split (async)
+          vim.fn.jobstart({ "kitty", "@", "--to", socket, "goto-layout", "splits" }, {
+            on_exit = function()
+              vim.fn.jobstart({ "kitty", "@", "--to", socket, "launch", "--location=vsplit", "--bias=30", "fancy-cat", pdf })
+            end,
+          })
         else
           vim.notify("PDF not found: " .. pdf, vim.log.levels.WARN)
         end

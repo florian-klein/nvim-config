@@ -203,15 +203,17 @@ local languages_and_lsps = {
         },
         server = {
           on_attach = function(client, bufnr)
+            -- Disable semantic tokens to fix "attempt to index local 'legend' (a nil value)"
+            client.server_capabilities.semanticTokensProvider = nil
             -- Enable formatting
             client.server_capabilities.documentFormattingProvider = true
-            -- Format on save
+            -- Format on save (async to avoid blocking)
             vim.api.nvim_clear_autocmds({ group = format_augroup, buffer = bufnr })
-            vim.api.nvim_create_autocmd("BufWritePre", {
+            vim.api.nvim_create_autocmd("BufWritePost", {
               group = format_augroup,
               buffer = bufnr,
               callback = function()
-                vim.lsp.buf.format({ bufnr = bufnr, async = false })
+                vim.lsp.buf.format({ bufnr = bufnr, async = true })
               end,
             })
           end,

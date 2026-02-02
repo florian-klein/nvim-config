@@ -1,6 +1,9 @@
 -- Performance optimizations
 vim.loader.enable() -- Enable faster Lua module loading
 
+-- Suppress Node.js deprecation warnings from LSP servers (html-lsp, css-lsp)
+vim.env.NODE_NO_WARNINGS = "1"
+
 -- Reduce updatetime for faster CursorHold events
 vim.opt.updatetime = 250
 
@@ -21,15 +24,28 @@ vim.diagnostic.config({
   severity_sort = true,
 })
 
--- Limit treesitter for large files
+-- Disable expensive features for large files
 vim.api.nvim_create_autocmd("BufReadPre", {
   callback = function(args)
     local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(args.buf))
-    if ok and stats and stats.size > 1024 * 1024 then -- 1MB
+    if ok and stats and stats.size > 512 * 1024 then -- 512KB threshold
       vim.b[args.buf].large_buf = true
+      -- Immediate lightweight disables
       vim.opt_local.syntax = "off"
       vim.opt_local.foldmethod = "manual"
-      vim.cmd("TSBufDisable highlight")
+      vim.opt_local.spell = false
+      -- Defer heavier operations to avoid blocking file open
+      vim.schedule(function()
+        pcall(vim.cmd, "TSBufDisable highlight")
+        pcall(vim.cmd, "TSBufDisable indent")
+        pcall(vim.cmd, "IBLDisable") -- indent-blankline
+        -- Detach LSP for very large files (>2MB)
+        if stats.size > 2 * 1024 * 1024 then
+          vim.schedule(function()
+            vim.lsp.stop_client(vim.lsp.get_clients({ bufnr = args.buf }))
+          end)
+        end
+      end)
     end
   end,
 })

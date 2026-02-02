@@ -45,6 +45,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
       client.server_capabilities.hoverProvider = false
     end
 
+    -- Disable semantic tokens for servers that don't properly provide the legend
+    -- This fixes: "attempt to index local 'legend' (a nil value)"
+    if client.name == "rust_analyzer" then
+      client.server_capabilities.semanticTokensProvider = nil
+    end
+
     -- Call the base on_attach for keymappings (gd, gr, K, etc.)
     -- This is critical - vim.lsp.config/enable doesn't call on_attach callbacks
     base_on_attach(client, bufnr)
@@ -55,17 +61,16 @@ vim.api.nvim_create_autocmd("LspAttach", {
       client.server_capabilities.documentRangeFormattingProvider = true
     end
 
-    -- Format on save if the LSP supports formatting
+    -- Format on save if the LSP supports formatting (async to avoid blocking)
     if client.server_capabilities.documentFormattingProvider then
       vim.api.nvim_clear_autocmds({ group = format_augroup, buffer = bufnr })
-      vim.api.nvim_create_autocmd("BufWritePre", {
+      vim.api.nvim_create_autocmd("BufWritePost", {
         group = format_augroup,
         buffer = bufnr,
         callback = function()
           vim.lsp.buf.format({
             bufnr = bufnr,
-            async = false,
-            timeout_ms = 3000,
+            async = true,
           })
         end,
       })
