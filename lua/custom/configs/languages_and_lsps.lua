@@ -668,6 +668,8 @@ local languages_and_lsps = {
           "-shell-escape",
         },
       }
+      -- Use Skim as PDF viewer
+      vim.g.vimtex_view_method = "skim"
       -- Quickfix: don't open automatically
       vim.g.vimtex_quickfix_mode = 0
     end,

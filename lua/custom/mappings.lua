@@ -151,27 +151,17 @@ M.general = {
     -- ["f"] = { "<cmd>lua require('leap').leap({target_windows = {vim.fn.win_getid()}})<CR>", "Leap forward" },
     -- ["F"] = { "<cmd>lua require('leap').leap({target_windows = {vim.fn.win_getid()}, backward = true})<CR>", "Leap backward" },
 
-    -- ─── LaTeX Preview (fancy-cat in kitty) ───────────────────────────────────
+    -- ─── LaTeX Preview (Skim) ──────────────────────────────────────────────────
     ["<leader>lp"] = {
       function()
         local pdf = vim.fn.expand("%:p:r") .. ".pdf"
-        local socket = vim.env.KITTY_LISTEN_ON
-        if not socket then
-          vim.notify("KITTY_LISTEN_ON not set - restart kitty with remote control enabled", vim.log.levels.ERROR)
-          return
-        end
         if vim.fn.filereadable(pdf) == 1 then
-          -- Switch to splits layout and launch fancy-cat in a 30% right split (async)
-          vim.fn.jobstart({ "kitty", "@", "--to", socket, "goto-layout", "splits" }, {
-            on_exit = function()
-              vim.fn.jobstart({ "kitty", "@", "--to", socket, "launch", "--location=vsplit", "--bias=30", "fancy-cat", pdf })
-            end,
-          })
+          vim.fn.jobstart({ "open", "-a", "Skim", pdf })
         else
           vim.notify("PDF not found: " .. pdf, vim.log.levels.WARN)
         end
       end,
-      "LaTeX: Preview PDF (30% right split)"
+      "LaTeX: Preview PDF (Skim)"
     },
     ["<leader>lc"] = {
       function()

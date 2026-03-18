@@ -73,6 +73,8 @@ vim.opt.swapfile = false
 -- Enable persistent undo as alternative to swap file recovery
 vim.opt.undofile = true
 
+vim.g.vimtex_view_method = "skim"
+
 vim.g.vimtex_compiler_latexmk = {
   options = {
     "-verbose",
