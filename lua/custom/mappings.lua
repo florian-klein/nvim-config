@@ -6,7 +6,8 @@ M.ignore = {}
 -- Custom code actions menu - merges LSP actions with tracing options
 local function show_code_actions_menu()
   local params = vim.lsp.util.make_range_params()
-  params.context = { diagnostics = vim.lsp.diagnostic.get_line_diagnostics() }
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  params.context = { diagnostics = vim.diagnostic.get(0, { lnum = cursor[1] - 1 }) }
 
   vim.lsp.buf_request_all(0, "textDocument/codeAction", params, function(results)
     local actions = {}
@@ -86,13 +87,7 @@ M.general = {
     ["x"] = { ":wq<CR>", "quit" },
     ["<C-s>"] = { ":w<CR>", "save file" },
     ["<leader>gb"] = { "<cmd> Telescope git_branches <CR>", "Git branches" },
-    -- Enhanced live grep with pattern support
-    ["<leader>fw"] = {
-      function()
-        require("telescope").extensions.live_grep_args.live_grep_args()
-      end,
-      "Live grep (with args)"
-    },
+    -- <leader>fw remapped to fff.nvim in plugins.lua
     -- Undo history browser
     ["<leader>fu"] = { "<cmd>Telescope undo<CR>", "Undo history" },
     -- Frecency - frequency+recency based file finding

@@ -1,11 +1,20 @@
 -- Performance optimizations
 vim.loader.enable() -- Enable faster Lua module loading
 
+-- Defer ShaDa (viminfo) loading to avoid blocking startup (~3.6ms saving)
+local shada = vim.fn.stdpath("state") .. "/shada/main.shada"
+vim.opt.shadafile = "NONE"
+vim.api.nvim_create_autocmd("User", {
+  pattern = "VeryLazy",
+  once = true,
+  callback = function()
+    vim.opt.shadafile = shada
+    pcall(vim.cmd.rshada, { bang = true })
+  end,
+})
+
 -- Suppress Node.js deprecation warnings from LSP servers (html-lsp, css-lsp)
 vim.env.NODE_NO_WARNINGS = "1"
-
--- Reduce updatetime for faster CursorHold events
-vim.opt.updatetime = 250
 
 -- Faster timeout for key sequences
 vim.opt.timeoutlen = 300
@@ -13,21 +22,22 @@ vim.opt.timeoutlen = 300
 -- Limit syntax highlighting for long lines (performance)
 vim.opt.synmaxcol = 300
 
--- Disable unused providers
-vim.g.loaded_ruby_provider = 0
-vim.g.loaded_perl_provider = 0
-
--- Debounce LSP diagnostics for better performance
-vim.diagnostic.config({
-  update_in_insert = false, -- Don't update diagnostics in insert mode
-  virtual_text = { spacing = 4 },
-  severity_sort = true,
+-- Defer vim.diagnostic loading to avoid 0.33ms eager require
+vim.api.nvim_create_autocmd("LspAttach", {
+  once = true,
+  callback = function()
+    vim.diagnostic.config({
+      update_in_insert = false,
+      virtual_text = { spacing = 4 },
+      severity_sort = true,
+    })
+  end,
 })
 
 -- Disable expensive features for large files
 vim.api.nvim_create_autocmd("BufReadPre", {
   callback = function(args)
-    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(args.buf))
+    local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(args.buf))
     if ok and stats and stats.size > 512 * 1024 then -- 512KB threshold
       vim.b[args.buf].large_buf = true
       -- Immediate lightweight disables
@@ -38,11 +48,13 @@ vim.api.nvim_create_autocmd("BufReadPre", {
       vim.schedule(function()
         pcall(vim.cmd, "TSBufDisable highlight")
         pcall(vim.cmd, "TSBufDisable indent")
-        pcall(vim.cmd, "IBLDisable") -- indent-blankline
+        pcall(vim.cmd, "IBLDisable") -- indent-blankline v3
         -- Detach LSP for very large files (>2MB)
         if stats.size > 2 * 1024 * 1024 then
           vim.schedule(function()
-            vim.lsp.stop_client(vim.lsp.get_clients({ bufnr = args.buf }))
+            for _, client in ipairs(vim.lsp.get_clients({ bufnr = args.buf })) do
+              client:stop()
+            end
           end)
         end
       end)
@@ -50,37 +62,14 @@ vim.api.nvim_create_autocmd("BufReadPre", {
   end,
 })
 
--- local autocmd = vim.api.nvim_create_autocmd
-
--- Auto resize panes when resizing nvim window
--- autocmd("VimResized", {
---   pattern = "*",
---   command = "tabdo wincmd =",
--- })
 vim.g.leetcode_solution_filetype = "cpp"
 vim.g.maplocalleader = ","
--- vim.g.copilot_disable_diagnostics = false
 vim.g.leetcode_browser = "chrome"
--- vim.opt.conceallevel = 1
--- Copilot keybindings are set in plugins.lua config
-
-vim.g.vimtex_format_enabled = true
 
 -- Disable swap files entirely (prevents prompts during debugging)
 -- Recovery is handled by undo persistence instead
 vim.opt.swapfile = false
 
--- Enable persistent undo as alternative to swap file recovery
-vim.opt.undofile = true
-
-vim.g.vimtex_view_method = "skim"
-
-vim.g.vimtex_compiler_latexmk = {
-  options = {
-    "-verbose",
-    "-file-line-error",
-    "-synctex=1",
-    "-interaction=nonstopmode",
-    "-shell-escape",
-  },
-}
+-- OCaml treesitter highlight overrides
+vim.api.nvim_set_hl(0, "@punctuation.delimiter.ocaml", { link = "Boolean" })
+vim.api.nvim_set_hl(0, "@variable.parameter.ocaml", { link = "Boolean" })

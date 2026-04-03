@@ -49,9 +49,6 @@ local languages_and_lsps = {
       "j-hui/fidget.nvim", -- For progress notifications
     },
     config = function()
-      -- Format on save augroup
-      local format_augroup = vim.api.nvim_create_augroup("RustFormatting", { clear = true })
-
       -- Find codelldb path (Mason installation)
       local codelldb_path = nil
       local liblldb_path = nil
@@ -63,7 +60,7 @@ local languages_and_lsps = {
       if vim.fn.isdirectory(mason_path) == 1 then
         codelldb_path = extension_path .. "adapter/codelldb"
         -- On macOS, the library has a different extension
-        local uname = vim.loop.os_uname()
+        local uname = vim.uv.os_uname()
         if uname.sysname == "Darwin" then
           liblldb_path = extension_path .. "lldb/lib/liblldb.dylib"
         else
@@ -205,17 +202,8 @@ local languages_and_lsps = {
           on_attach = function(client, bufnr)
             -- Disable semantic tokens to fix "attempt to index local 'legend' (a nil value)"
             client.server_capabilities.semanticTokensProvider = nil
-            -- Enable formatting
-            client.server_capabilities.documentFormattingProvider = true
-            -- Format on save (async to avoid blocking)
-            vim.api.nvim_clear_autocmds({ group = format_augroup, buffer = bufnr })
-            vim.api.nvim_create_autocmd("BufWritePost", {
-              group = format_augroup,
-              buffer = bufnr,
-              callback = function()
-                vim.lsp.buf.format({ bufnr = bufnr, async = true })
-              end,
-            })
+            -- Formatting handled by conform.nvim (calls rustfmt directly)
+            client.server_capabilities.documentFormattingProvider = false
           end,
           default_settings = {
             ["rust-analyzer"] = {
@@ -442,8 +430,8 @@ local languages_and_lsps = {
           "╰───────────────────────────────╯",
         }
         vim.api.nvim_buf_set_lines(help_buf, 0, -1, false, help_lines)
-        vim.api.nvim_buf_set_option(help_buf, "modifiable", false)
-        vim.api.nvim_buf_set_option(help_buf, "buftype", "nofile")
+        vim.bo[help_buf].modifiable = false
+        vim.bo[help_buf].buftype = "nofile"
         return help_buf
       end
 
@@ -467,7 +455,7 @@ local languages_and_lsps = {
             focusable = false,
             zindex = 50,
           })
-          vim.api.nvim_win_set_option(win, "winblend", 10)
+          vim.wo[win].winblend = 10
           -- Close help window after 6 seconds
           vim.defer_fn(function()
             if vim.api.nvim_win_is_valid(win) then
@@ -564,23 +552,28 @@ local languages_and_lsps = {
   },
   {
     "neovim/nvim-lspconfig",
-    dependencies = {
-      -- format & linting
-      {
-        "nvimtools/none-ls.nvim",
-        config = function()
-          require "custom.configs.null-ls"
-        end,
-      },
-    },
     config = function()
       require "plugins.configs.lspconfig"
       require "custom.configs.lspconfig"
-    end, -- Override to setup mason-lspconfig
+    end,
   },
   {
     "HiPhish/rainbow-delimiters.nvim",
-    event = "BufReadPost", -- Load after file is read
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    event = "BufReadPost",
+    config = function()
+      require("rainbow-delimiters.setup").setup {
+        highlight = {
+          "RainbowDelimiterRed",
+          "RainbowDelimiterYellow",
+          "RainbowDelimiterBlue",
+          "RainbowDelimiterOrange",
+          "RainbowDelimiterGreen",
+          "RainbowDelimiterViolet",
+          "RainbowDelimiterCyan",
+        },
+      }
+    end,
   },
   --- display lsp errors using trouble
   {
@@ -641,6 +634,18 @@ local languages_and_lsps = {
   {
     "nvim-treesitter/nvim-treesitter",
     opts = overrides.treesitter,
+    config = function(_, opts)
+      -- Register custom ASM parser before setup (deferred from overrides.lua to avoid eager treesitter load)
+      require("nvim-treesitter.parsers").get_parser_configs().asm = {
+        install_info = {
+          url = "https://github.com/rush-rs/tree-sitter-asm.git",
+          files = { "src/parser.c" },
+          branch = "main",
+        },
+      }
+      dofile(vim.g.base46_cache .. "syntax")
+      require("nvim-treesitter.configs").setup(opts)
+    end,
   },
 
   {
@@ -649,7 +654,7 @@ local languages_and_lsps = {
   },
   {
     "alaviss/nim.nvim",
-    lazy = true,
+    ft = "nim",
   },
   {
     "lervag/vimtex",
@@ -703,16 +708,6 @@ local languages_and_lsps = {
       },
     },
   },
-  -- {
-  --   "neoclide/coc.nvim",
-  --   lazy = false,
-  --   branch ="release",
-  --   build = "yarn install --frozen-lockfile"
-  -- },
-  {
-    "ianks/vim-tsx",
-    lazy = true,
-  },
   ---- coq
   {
     "whonore/Coqtail",
@@ -726,7 +721,7 @@ local languages_and_lsps = {
     ft = "asm",
   },
   --- git
-  { "tpope/vim-fugitive", version = "*", lazy = true },
+  { "tpope/vim-fugitive", version = "*", cmd = { "Git", "G", "Gdiffsplit", "Gvdiffsplit" } },
   {
     "kdheepak/lazygit.nvim",
     cmd = "LazyGit", -- Load on command only
@@ -776,7 +771,7 @@ local languages_and_lsps = {
 
       require("flowistry").setup({
         register_default_keymaps = false,
-        toolchain = "nightly-2025-08-20",
+        toolchain = "nightly",
         log_level = "info",
         highlight = {
           mark = { link = "FlowistryMark" },

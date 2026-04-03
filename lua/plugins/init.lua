@@ -57,7 +57,7 @@ local default_plugins = {
 
   {
     "lukas-reineke/indent-blankline.nvim",
-    version = "2.20.7",
+    main = "ibl",
     init = function()
       require("core.utils").lazy_load "indent-blankline.nvim"
     end,
@@ -67,7 +67,7 @@ local default_plugins = {
     config = function(_, opts)
       require("core.utils").load_mappings "blankline"
       dofile(vim.g.base46_cache .. "blankline")
-      require("indent_blankline").setup(opts)
+      require("ibl").setup(opts)
     end,
   },
 
@@ -232,11 +232,8 @@ local default_plugins = {
   },
   {
     "nvim-telescope/telescope-frecency.nvim",
-    -- install the latest stable version
     version = "*",
-    config = function()
-      require("telescope").load_extension "frecency"
-    end,
+    lazy = true,
   },
   {
     "nvim-telescope/telescope.nvim",

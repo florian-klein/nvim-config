@@ -3,34 +3,16 @@ local capabilities = require("plugins.configs.lspconfig").capabilities
 
 -- Handle workspace/diagnostic/refresh properly (don't reset, let LSP push new diagnostics)
 vim.lsp.handlers["workspace/diagnostic/refresh"] = function(_, result, ctx)
-  -- Simply acknowledge the refresh request - rust-analyzer will push new diagnostics
-  -- Don't reset diagnostics here as that would clear them before new ones arrive
   return vim.NIL
 end
 
 -- Disable rust-analyzer auto-start (handled by rustaceanvim)
 vim.g.rustaceanvim_standalone = false
--- Prevent Neovim from auto-starting rust_analyzer (rustaceanvim manages it)
 pcall(function()
   vim.lsp.config("rust_analyzer", { autostart = false })
 end)
 
--- Create augroup for format on save
-local format_augroup = vim.api.nvim_create_augroup("LspFormatting", { clear = true })
-
--- LSPs that should use their native formatting (not null-ls)
--- Note: rust_analyzer is handled by rustaceanvim
-local lsp_formatting_enabled = {
-  clangd = true,
-  html = true,
-  cssls = true,
-  texlab = true,
-  ruff = true, -- Python formatting
-}
-
--- Main LspAttach autocmd for keymappings and setup
--- The new vim.lsp.config/enable API doesn't call on_attach callbacks,
--- so we must use LspAttach autocmd to set up keybindings
+-- Main LspAttach autocmd (formatting handled by conform.nvim, not here)
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("lsp_attach_setup", { clear = true }),
   callback = function(args)
@@ -46,140 +28,29 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
 
     -- Disable semantic tokens for servers that don't properly provide the legend
-    -- This fixes: "attempt to index local 'legend' (a nil value)"
     if client.name == "rust_analyzer" then
       client.server_capabilities.semanticTokensProvider = nil
     end
 
     -- Call the base on_attach for keymappings (gd, gr, K, etc.)
-    -- This is critical - vim.lsp.config/enable doesn't call on_attach callbacks
     base_on_attach(client, bufnr)
 
-    -- Re-enable formatting for specified LSPs (NvChad disables it by default)
-    if lsp_formatting_enabled[client.name] then
-      client.server_capabilities.documentFormattingProvider = true
-      client.server_capabilities.documentRangeFormattingProvider = true
-    end
-
-    -- Format on save if the LSP supports formatting (async to avoid blocking)
-    if client.server_capabilities.documentFormattingProvider then
-      vim.api.nvim_clear_autocmds({ group = format_augroup, buffer = bufnr })
-      vim.api.nvim_create_autocmd("BufWritePost", {
-        group = format_augroup,
-        buffer = bufnr,
-        callback = function()
-          vim.lsp.buf.format({
-            bufnr = bufnr,
-            async = true,
-          })
-        end,
-      })
-    end
+    -- Disable LSP formatting — conform.nvim handles all formatting directly
+    client.server_capabilities.documentFormattingProvider = false
+    client.server_capabilities.documentRangeFormattingProvider = false
   end,
-  desc = "LSP: Setup keymappings, formatting, and capabilities",
+  desc = "LSP: Setup keymappings and capabilities",
 })
 
 -- Set Rust toolchain to nightly
 vim.env.RUSTUP_TOOLCHAIN = "nightly"
 
--- Increase Node.js max listeners for large projects
-local success, emitter = pcall(require, "vim.lsp.protocol._emitter")
-if success and emitter and emitter.setMaxListeners then
-  emitter:setMaxListeners(20) -- Increase max listeners
-end
-
 local servers = {
   "html",
   "cssls",
   "clangd",
-  -- "rust_analyzer", -- Handled by rustaceanvim
   "texlab",
   "asm_lsp",
-  -- ty and ruff are configured below using lspconfig for better single-file support
-}
-
--- LSP-specific init_options (used for ruff, ty logging, etc.)
-local lsp_init_options = {
-  ruff = {
-    settings = {
-      logLevel = "warn",
-      lint = {
-        enable = true,
-      },
-      format = {
-        preview = true,
-      },
-      -- Exclude problematic directories
-      exclude = {
-        "**/miniconda3/**",
-        "**/.cache/**",
-        "**/site-packages/**",
-        "**/__pycache__/**",
-        "**/.venv/**",
-        "**/venv/**",
-      },
-    },
-  },
-  ty = {
-    -- Only logFile and logLevel go in init_options
-    logLevel = "warn",
-  },
-}
-
--- LSP-specific settings for performance
-local lsp_settings = {
-  ty = {
-    ty = {
-      diagnosticMode = "openFilesOnly",
-      completions = {
-        autoImport = true,
-      },
-      inlayHints = {
-        variableTypes = true,
-        callArgumentNames = true,
-      },
-    },
-  },
-  rust_analyzer = {
-    ["rust-analyzer"] = {
-      lru = { capacity = 4096 },
-      cargo = {
-        allFeatures = false,
-        buildScripts = { enable = true },
-      },
-      procMacro = { enable = true },
-      diagnostics = {
-        enable = true,
-        experimental = { enable = false },
-      },
-      checkOnSave = {
-        enable = true,
-        command = "check",
-        extraArgs = { "--target-dir", "target/analyzer" },
-      },
-      workspace = {
-        symbol = { search = { limit = 128 } },
-      },
-      inlayHints = {
-        parameterHints = { enable = false },
-        chainingHints = { enable = false },
-        closingBraceHints = { enable = false },
-        typeHints = { enable = true },
-        lifetimeElisionHints = { enable = "skip_trivial" },
-      },
-      completion = {
-        limit = 50,
-        autoimport = { enable = true },
-      },
-      rustfmt = {
-        extraArgs = {},
-        overrideCommand = nil,
-      },
-    },
-  },
-  clangd = {
-    -- clangd settings are passed via cmd args, not settings
-  },
 }
 
 -- LSP-specific command overrides
@@ -191,13 +62,10 @@ local lsp_cmd = {
     "--completion-style=detailed",
     "--header-insertion=iwyu",
     "--pch-storage=memory",
-    "-j=4", -- Parallel indexing jobs
-    "--malloc-trim", -- Release memory after indexing
+    "-j=4",
+    "--malloc-trim",
   },
 }
-
--- Root markers - empty table
-local lsp_root_markers = {}
 
 -- Loop through servers and set configurations
 for _, lsp in ipairs(servers) do
@@ -205,27 +73,10 @@ for _, lsp in ipairs(servers) do
     capabilities = capabilities,
   }
 
-  -- Apply settings if defined
-  if lsp_settings[lsp] and next(lsp_settings[lsp]) ~= nil then
-    setup_config.settings = lsp_settings[lsp]
-  end
-
-  -- Apply init_options if defined (for ruff, ty, etc.)
-  if lsp_init_options[lsp] then
-    setup_config.init_options = lsp_init_options[lsp]
-  end
-
-  -- Apply custom cmd if defined
   if lsp_cmd[lsp] then
     setup_config.cmd = lsp_cmd[lsp]
   end
 
-  -- Apply custom root_markers if defined
-  if lsp_root_markers[lsp] then
-    setup_config.root_markers = lsp_root_markers[lsp]
-  end
-
-  -- Configure and enable the LSP server
   vim.lsp.config(lsp, setup_config)
   vim.lsp.enable(lsp)
 end
@@ -243,7 +94,7 @@ function UpdateRustAnalyzerFeatures(features, no_default_features)
       },
     },
   }
-  local clients = vim.lsp.get_active_clients()
+  local clients = vim.lsp.get_clients()
   for _, client in ipairs(clients) do
     if client.name == "rust_analyzer" then
       local status_ok, err = pcall(client.notify, client, "workspace/didChangeConfiguration", params)
@@ -285,7 +136,6 @@ local function python_root_dir(bufnr, on_dir)
   if root and root ~= vim.env.HOME then
     on_dir(root)
   else
-    -- Fall back to file's directory for standalone files
     local fname = vim.api.nvim_buf_get_name(bufnr)
     on_dir(vim.fn.fnamemodify(fname, ":p:h"))
   end

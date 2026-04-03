@@ -20,7 +20,7 @@ local plugins = {
         enabled = true,
         auto_trigger = true,
         keymap = {
-          accept = false, -- We handle Tab manually below
+          accept = false, -- Handled in unified Tab mapping (cmp.lua)
           accept_word = "<C-Right>",
           accept_line = "<C-Down>",
           next = "<M-]>",
@@ -30,36 +30,68 @@ local plugins = {
       },
       panel = { enabled = false },
     },
-    config = function(_, opts)
-      require("copilot").setup(opts)
-      -- Custom Tab mapping: accept Copilot suggestion if visible, otherwise fallback to normal Tab
-      vim.keymap.set("i", "<Tab>", function()
-        if require("copilot.suggestion").is_visible() then
-          require("copilot.suggestion").accept()
-        else
-          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Tab>", true, false, true), "n", false)
-        end
-      end, { desc = "Accept Copilot or Tab" })
-    end,
+    -- Tab mapping unified in cmp.lua: Copilot -> cmp -> LuaSnip -> fallback
   },
+  -- Fast formatting via direct CLI calls (bypasses LSP overhead)
   {
-    "mbledkowski/neuleetcode.vim",
-    lazy = true,
+    "stevearc/conform.nvim",
+    event = { "BufWritePre", "BufNewFile", "BufReadPost" },
+    cmd = "ConformInfo",
+    keys = {
+      { "<leader>fm", function() require("conform").format({ async = true }) end, desc = "Format buffer" },
+    },
+    opts = {
+      formatters_by_ft = {
+        lua = { "stylua" },
+        python = { "ruff_format" },
+        rust = { "rustfmt" },
+        c = { "clang-format" },
+        cpp = { "clang-format" },
+        javascript = { "prettier" },
+        typescript = { "prettier" },
+        javascriptreact = { "prettier" },
+        typescriptreact = { "prettier" },
+        html = { "prettier" },
+        css = { "prettier" },
+        json = { "prettier" },
+        yaml = { "prettier" },
+        markdown = { "prettier" },
+        java = { "google-java-format" },
+      },
+      -- Async format after save — never blocks the editor
+      format_after_save = {
+        lsp_format = "fallback", -- Use LSP if no CLI formatter configured (e.g. texlab for LaTeX)
+        async = true,
+      },
+      -- Direct formatter overrides for speed
+      formatters = {
+        ruff_format = {
+          -- --preview must come after the "format" subcommand that conform inserts
+          append_args = { "--preview" },
+        },
+      },
+    },
   },
   -- Telescope extensions
   {
     "debugloop/telescope-undo.nvim",
-    dependencies = { "nvim-telescope/telescope.nvim" },
-    config = function()
-      require("telescope").load_extension("undo")
-    end,
+    lazy = true,
   },
   {
     "nvim-telescope/telescope-ui-select.nvim",
-    dependencies = { "nvim-telescope/telescope.nvim" },
-    config = function()
-      require("telescope").load_extension("ui-select")
+    lazy = true,
+  },
+  {
+    "dmtrKovalenko/fff.nvim",
+    build = function()
+      require("fff.download").download_or_build_binary()
     end,
+    opts = {},
+    lazy = false,
+    keys = {
+      { "<leader>ff", function() require("fff").find_files() end, desc = "Find files (fff)" },
+      { "<leader>fw", function() require("fff").live_grep() end, desc = "Live grep (fff)" },
+    },
   },
   {
     "mikesmithgh/kitty-scrollback.nvim",

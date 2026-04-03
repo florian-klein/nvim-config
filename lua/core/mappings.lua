@@ -51,9 +51,9 @@ M.general = {
 
     ["<leader>fm"] = {
       function()
-        vim.lsp.buf.format { async = true }
+        require("conform").format { async = true }
       end,
-      "LSP formatting",
+      "Format buffer",
     },
   },
 
@@ -147,7 +147,7 @@ M.lspconfig = {
 
     ["K"] = {
       function()
-        vim.lsp.buf.hover()
+        vim.cmd("Lspsaga hover_doc")
       end,
       "LSP hover",
     },
@@ -194,7 +194,7 @@ M.lspconfig = {
       "LSP references",
     },
 
-    ["<leader>f"] = {
+    ["<leader>df"] = {
       function()
         vim.diagnostic.open_float { border = "rounded" }
       end,
@@ -377,14 +377,17 @@ M.blankline = {
   n = {
     ["<leader>cc"] = {
       function()
-        local ok, start = require("indent_blankline.utils").get_current_context(
-          vim.g.indent_blankline_context_patterns,
-          vim.g.indent_blankline_use_treesitter_scope
-        )
-
-        if ok then
-          vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), { start, 0 })
-          vim.cmd [[normal! _]]
+        local ok, node = pcall(vim.treesitter.get_node)
+        if not ok or not node then return end
+        local cursor_row = vim.api.nvim_win_get_cursor(0)[1] - 1
+        while node do
+          local start_row = node:start()
+          if start_row < cursor_row then
+            vim.api.nvim_win_set_cursor(0, { start_row + 1, 0 })
+            vim.cmd [[normal! _]]
+            return
+          end
+          node = node:parent()
         end
       end,
 
@@ -443,7 +446,7 @@ M.gitsigns = {
 
     ["<leader>gb"] = {
       function()
-        package.loaded.gitsigns.blame_line()
+        require("gitsigns").blame_line()
       end,
       "Blame line",
     },

@@ -2,12 +2,16 @@ return {
   defaults = { lazy = true },
   install = { colorscheme = { "nvchad" } },
 
+  -- Disable background polling for plugin updates and file changes
+  checker = { enabled = false },
+  change_detection = { enabled = false },
+
   ui = {
     icons = {
-      ft = "",
+      ft = "",
       lazy = "󰂠 ",
-      loaded = "",
-      not_loaded = "",
+      loaded = "",
+      not_loaded = "",
     },
   },
 
@@ -25,6 +29,7 @@ return {
         "netrwSettings",
         "netrwFileHandlers",
         "matchit",
+        "matchparen",
         "tar",
         "tarPlugin",
         "rrhelper",
@@ -41,6 +46,7 @@ return {
         "compiler",
         "bugreport",
         "ftplugin",
+        "man",
       },
     },
   },

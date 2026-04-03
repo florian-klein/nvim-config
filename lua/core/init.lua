@@ -12,7 +12,10 @@ g.transparency = config.ui.transparency
 opt.laststatus = 3 -- global statusline
 opt.showmode = false
 
-opt.clipboard = "unnamedplus"
+-- Defer clipboard to avoid slow provider detection on startup
+vim.schedule(function()
+  opt.clipboard = "unnamedplus"
+end)
 opt.cursorline = true
 
 -- Indenting
@@ -57,7 +60,7 @@ for _, provider in ipairs { "node", "perl", "ruby" } do
 end
 
 -- add binaries installed by mason.nvim to path
-local is_windows = vim.loop.os_uname().sysname == "Windows_NT"
+local is_windows = vim.uv.os_uname().sysname == "Windows_NT"
 vim.env.PATH = vim.fn.stdpath "data" .. "/mason/bin" .. (is_windows and ";" or ":") .. vim.env.PATH
 
 -------------------------------------- autocmds ------------------------------------------
@@ -71,14 +74,17 @@ autocmd("FileType", {
   end,
 })
 
--- reload some chadrc options on-save (deferred to avoid blocking saves)
+-- reload some chadrc options on-save (pattern computed lazily to avoid glob/fs_realpath at startup)
 autocmd("BufWritePost", {
-  pattern = vim.tbl_map(function(path)
-    return vim.fs.normalize(vim.loop.fs_realpath(path))
-  end, vim.fn.glob(vim.fn.stdpath "config" .. "/lua/custom/**/*.lua", true, true, true)),
+  pattern = "*.lua",
   group = vim.api.nvim_create_augroup("ReloadNvChad", {}),
 
   callback = function(opts)
+    -- Only process files in our custom config directory
+    local bufname = vim.api.nvim_buf_get_name(opts.buf)
+    if not bufname:find(vim.fn.stdpath "config" .. "/lua/custom", 1, true) then
+      return
+    end
     -- Defer heavy reload operations to avoid blocking the save
     vim.schedule(function()
       local fp = vim.fn.fnamemodify(vim.fs.normalize(vim.api.nvim_buf_get_name(opts.buf)), ":r") --[[@as string]]

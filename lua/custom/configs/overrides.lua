@@ -1,8 +1,6 @@
 local M = {}
 
 M.treesitter = {
-  vim.api.nvim_set_hl(0, "@punctuation.delimiter.ocaml", { link = "Boolean" });
-  vim.api.nvim_set_hl(0, "@variable.parameter.ocaml", { link = "Boolean" });
   ensure_installed = {
     "vim",
     "lua",
@@ -26,7 +24,7 @@ M.treesitter = {
     disable = function(lang, buf)
       -- Disable for large files
       local max_filesize = 100 * 1024 -- 100 KB
-      local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+      local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
       if ok and stats and stats.size > max_filesize then
         return true
       end
@@ -49,15 +47,6 @@ M.treesitter = {
   },
 }
 
--- Add the Assembly Treesitter parser configuration
-require('nvim-treesitter.parsers').get_parser_configs().asm = {
-  install_info = {
-    url = 'https://github.com/rush-rs/tree-sitter-asm.git',
-    files = { 'src/parser.c' },
-    branch = 'main',
-  },
-}
-
 M.mason = {
   ensure_installed = {
     -- lua stuff
@@ -71,11 +60,7 @@ M.mason = {
     "deno",
 
     -- python
-    "basedpyright",
     "ruff",
-    "ruff-lsp",
-    -- rust
-    "rust-analyzer",
     -- latex
     "texlab",
     -- ocaml
